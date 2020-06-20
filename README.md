@@ -9,9 +9,9 @@ The easiest way to slide React routes
 [![npm peer dependency version](https://img.shields.io/npm/dependency-version/react-slide-routes/peer/react-router?style=flat-square)](https://github.com/ReactTraining/react-router)
 [![GitHub](https://img.shields.io/github/license/nanxiaobei/react-slide-routes?style=flat-square)](https://github.com/nanxiaobei/react-slide-routes/blob/master/LICENSE)
 
-## Requirements
+## Fit
 
-`4.0.0` <= `react-router` < `6.0.0`
+`react-router` version `>=4.0.0` & `<6.0.0`
 
 ## Start
 
@@ -34,7 +34,7 @@ const App = () => {
       <SlideRoutes location={location}>
         <Route path="/" render={() => <div>Home</div>} />
         <Route path="/about" render={() => <div>About</div>} />
-        <Route path="/about" render={() => <div>About</div>} />
+        <Route path="/contact" render={() => <div>Contact</div>} />
       </SlideRoutes>
     </BrowserRouter>
   );
@@ -49,7 +49,7 @@ const App = () => {
 
 | Prop     | Type      | Required | Default    | Description                                                                                                 |
 | -------- | --------- | -------- | ---------- | ----------------------------------------------------------------------------------------------------------- |
-| location | `object`  | `true`   | `location` | `location` from `react-router-dom`, required                                                                |
+| location | `object`  | √        | `location` | `location` from `react-router-dom`, required                                                                |
 | time     | `number`  |          | `200`      | Time of transition duration in millisecond, when set, css rules is also needed, see below                   |
 | destroy  | `boolean` |          | `true`     | If `false`, the passed route dom is still exist, just invisible, and `time` prop will be invalid, see below |
 
