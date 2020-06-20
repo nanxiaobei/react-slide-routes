@@ -11,7 +11,7 @@ The easiest way to slide React routes
 
 ## Fit
 
-`react-router` version `>=4.0.0` & `<6.0.0`
+`react-router` version >=4.0.0 and <6.0.0
 
 ## Start
 
@@ -47,11 +47,11 @@ const App = () => {
 
 ## Props
 
-| Prop     | Type      | Required | Default    | Description                                                                                                 |
-| -------- | --------- | -------- | ---------- | ----------------------------------------------------------------------------------------------------------- |
-| location | `object`  | √        | `location` | `location` from `react-router-dom`, required                                                                |
-| time     | `number`  |          | `200`      | Time of transition duration in millisecond, when set, css rules is also needed, see below                   |
-| destroy  | `boolean` |          | `true`     | If `false`, the passed route dom is still exist, just invisible, and `time` prop will be invalid, see below |
+| Prop     | Type      | Required | Default    | Description                                                                                               |
+| -------- | --------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------- |
+| location | `object`  | √        | `location` | `location` from `react-router-dom`, required                                                              |
+| time     | `number`  |          | `200`      | Time of transition duration in milliseconds. hen set, css rules is also needed, see below                 |
+| destroy  | `boolean` |          | `true`     | If `false`, the prev route dom is still exist, just invisible, and `time` prop will be invalid, see below |
 
 ## CSS
 
@@ -61,7 +61,7 @@ const App = () => {
   transition: transform 500ms;
 }
 
-/* If set prop `destroy={false}`, `time` prop will be invalid, use css to change transition duration */
+/* If set prop `destroy={false}`, `time` prop will be invalid, use css to change duration */
 .slide-routes [class$='-active'] {
   transition: transform 1s;
 }
