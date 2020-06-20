@@ -53,7 +53,7 @@ const App = () => {
 
 | Prop     | Type      | Required | Default    | Description                                                                                               |
 | -------- | --------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------- |
-| location | `object`  | Yes      | `location` | `location` from `react-router-dom`, required                                                              |
+| location | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                              |
 | time     | `number`  |          | `200`      | Time of transition duration in milliseconds. hen set, css rules is also needed, see below                 |
 | destroy  | `boolean` |          | `true`     | If `false`, the prev route dom is still exist, just invisible, and `time` prop will be invalid, see below |
 
