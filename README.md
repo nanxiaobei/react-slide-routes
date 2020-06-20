@@ -49,6 +49,8 @@ const App = () => {
 
 [See a live demo here](https://codesandbox.io/s/react-slide-routes-bnzlu)
 
+![live](live.gif)
+
 ## API
 
 | Prop     | Type      | Required | Default    | Description                                                                                               |
