@@ -7,7 +7,10 @@
     "slide",
     "router",
     "routes",
-    "route"
+    "route",
+    "transition",
+    "animation",
+    "motion"
   ],
   "main": "dist/react-slide-routes.cjs.js",
   "module": "dist/react-slide-routes.esm.js",
