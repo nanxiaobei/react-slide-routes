@@ -1,2 +1,2 @@
 # react-slide-routes
-Easiest way to slide routes
+The Easiest way to slide React routes
