@@ -25,25 +25,29 @@ npm install react-slide-routes
 
 ```jsx
 import SlideRoutes from 'react-slide-routes';
-import { BrowserRouter, Route, useLocation } from 'react-router-dom';
+import { Route, useLocation } from 'react-router-dom';
+
+const Home = () => <div className="home">Home</div>;
+const About = () => <div className="about">About</div>;
+const Contact = () => <div className="contact">Contact</div>;
 
 const App = () => {
   const location = useLocation();
   return (
-    <BrowserRouter>
+    <>
       <SlideRoutes location={location}>
-        <Route path="/" render={() => <div>Home</div>} />
-        <Route path="/about" render={() => <div>About</div>} />
-        <Route path="/contact" render={() => <div>Contact</div>} />
+        <Route path="/" component={Home} exact />
+        <Route path="/about" component={About} />
+        <Route path="/contact" component={Contact} />
       </SlideRoutes>
-    </BrowserRouter>
+    </>
   );
 };
 ```
 
 ## Live
 
-[See a live demo here]()
+[See a live demo here](https://codesandbox.io/s/react-slide-routes-bnzlu)
 
 ## API
 
