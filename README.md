@@ -47,7 +47,7 @@ const App = () => {
 
 ## Live
 
-[See a live demo here](https://codesandbox.io/s/react-slide-routes-bnzlu)
+[See a live demo here → 🤳](https://codesandbox.io/s/react-slide-routes-bnzlu)
 
 ![live](live.gif)
 
@@ -55,7 +55,7 @@ const App = () => {
 
 | Prop     | Type      | Required | Default    | Description                                                                                               |
 | -------- | --------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------- |
-| location | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                              |
+| location | `object`  | Yes      | `location` | `location` from `react-router-dom`, required                                                              |
 | time     | `number`  |          | `200`      | Time of transition duration in milliseconds. hen set, css rules is also needed, see below                 |
 | destroy  | `boolean` |          | `true`     | If `false`, the prev route dom is still exist, just invisible, and `time` prop will be invalid, see below |
 
