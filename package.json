@@ -2,8 +2,46 @@
   "name": "react-slide-routes",
   "version": "0.0.1",
   "description": "The Easiest way to slide React routes",
-  "main": "index.js",
+  "keywords": [
+    "react",
+    "slide",
+    "router",
+    "routes",
+    "route"
+  ],
+  "main": "dist/react-slide-routes.cjs.js",
+  "module": "dist/react-slide-routes.esm.js",
   "repository": "https://github.com/nanxiaobei/react-slide-routes.git",
   "author": "nanxiaobei <nanxiaobei@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "rimraf dist && rollup -c"
+  },
+  "dependencies": {
+    "react-transition-group": "^4.4.1"
+  },
+  "peerDependencies": {
+    "prop-types": "^15.7.2",
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0",
+    "react-router": ">=4.0.0 <6.0.0",
+    "react-router-dom": ">=4.0.0 <6.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.3",
+    "@babel/preset-env": "^7.10.3",
+    "@babel/preset-react": "^7.10.1",
+    "eslint": "^7.3.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react-app": "^6.2.2",
+    "prettier": "^2.0.5",
+    "rollup": "^2.17.1",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-less": "^1.1.2"
+  }
 }
