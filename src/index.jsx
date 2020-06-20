@@ -32,7 +32,7 @@ let direction;
 /**
  * SlideRoutes
  */
-const SlideRoutes = ({ time: timeout = 200, destroy = true, location, children }) => {
+const SlideRoutes = ({ location, time: timeout = 200, destroy = true, children }) => {
   const CSSProps = useRef(destroy ? { timeout } : { addEndListener() {} });
 
   const { pathname } = location;
@@ -69,9 +69,9 @@ const SlideRoutes = ({ time: timeout = 200, destroy = true, location, children }
 };
 
 SlideRoutes.propTypes = {
+  location: t.object,
   time: t.string,
   destroy: t.bool,
-  location: t.object,
   children: t.node,
 };
 
