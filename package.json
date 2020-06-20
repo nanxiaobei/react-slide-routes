@@ -1,0 +1,9 @@
+{
+  "name": "react-slide-routes",
+  "version": "0.0.1",
+  "description": "The Easiest way to slide React routes",
+  "main": "index.js",
+  "repository": "https://github.com/nanxiaobei/react-slide-routes.git",
+  "author": "nanxiaobei <nanxiaobei@gmail.com>",
+  "license": "MIT"
+}
