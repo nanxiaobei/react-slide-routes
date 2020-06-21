@@ -1,4 +1,4 @@
-# react-slide-routes
+# react-slide-routes 🏄‍♂️
 
 The easiest way to slide React routes
 
@@ -27,10 +27,6 @@ npm install react-slide-routes
 import SlideRoutes from 'react-slide-routes';
 import { Route, useLocation } from 'react-router-dom';
 
-const Home = () => <div className="home">Home</div>;
-const About = () => <div className="about">About</div>;
-const Contact = () => <div className="contact">Contact</div>;
-
 const App = () => {
   const location = useLocation();
   return (
@@ -47,27 +43,27 @@ const App = () => {
 
 ## Live
 
-[See a live demo here → 🤳](https://codesandbox.io/s/react-slide-routes-bnzlu)
+[Play a live demo here → 🤳](https://codesandbox.io/s/react-slide-routes-bnzlu)
 
 ![live](live.gif)
 
 ## API
 
-| Prop     | Type      | Required | Default    | Description                                                                                               |
-| -------- | --------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------- |
-| location | `object`  | Yes      | `location` | `location` from `react-router-dom`, required                                                              |
-| time     | `number`  |          | `200`      | Time of transition duration in milliseconds. hen set, css rules is also needed, see below                 |
-| destroy  | `boolean` |          | `true`     | If `false`, the prev route dom is still exist, just invisible, and `time` prop will be invalid, see below |
+| Prop       | Type      | Required | Default    | Description                                                                                               |
+| ---------- | --------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------- |
+| `location` | `object`  | Yes      | `location` | `location` from `react-router-dom`, required                                                              |
+| `time`     | `number`  |          | `200`      | Time of transition duration in milliseconds. hen set, css rules is also needed, see below                 |
+| `destroy`  | `boolean` |          | `true`     | If `false`, the prev route dom is still exist, just invisible, and `time` prop will be invalid, see below |
 
 ## CSS
 
 ```css
-/* If set prop `time={500}`, css rest is also need to add */
+/* If set prop time={500}, css reset is also need to add */
 .slide-routes [class$='-active'] {
   transition: transform 500ms;
 }
 
-/* If set prop `destroy={false}`, `time` prop will be invalid, use css to change duration */
+/* If set prop destroy={false}, `time` prop will be invalid, use css to set duration */
 .slide-routes [class$='-active'] {
   transition: transform 1s;
 }
