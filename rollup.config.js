@@ -1,9 +1,8 @@
 import babel from 'rollup-plugin-babel';
-import less from 'rollup-plugin-less';
 import pkg from './package.json';
 
-const input = 'src/index.jsx';
-const external = (id) => !/index.less$/.test(id);
+const input = 'index.jsx';
+const external = () => true;
 const plugins = [
   babel({
     presets: [
@@ -11,7 +10,6 @@ const plugins = [
       ['@babel/preset-react', { useBuiltIns: true }],
     ],
   }),
-  less({ insert: true, output: false }),
 ];
 
 export default [
