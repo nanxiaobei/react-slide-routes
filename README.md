@@ -49,52 +49,42 @@ const App = () => {
 
 ## API
 
-| Prop       | Type      | Required | Default    | Description                                                                                               |
-| ---------- | --------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------- |
-| `location` | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                              |
-| `time`     | `number`  |          | `200`      | Time of transition duration in milliseconds. when set, css rules is also needed, see below                |
-| `destroy`  | `boolean` |          | `true`     | If `false`, the prev route dom is still exist, just invisible, and `time` prop will be invalid, see below |
+| Prop       | Type      | Required | Default    | Description                                                                                           |
+| ---------- | --------- | -------- | ---------- | ----------------------------------------------------------------------------------------------------- |
+| `location` | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                          |
+| `duration` | `number`  |          | `200`      | `transition-duration` in ms                                                                           |
+| `effect`   | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'`, `'ease-in'`, `'ease-out'`, `'ease-in-out'`, `'linear'` |
+| `destroy`  | `boolean` |          | `true`     | If `false`, the passed page will still exits in dom, only invisible                                   |
 
 ## CSS
 
+All css rules for slide effect:
+
 ```css
-/* If set prop time={500}, css reset is also need to add */
-.slide-routes [class$='-active'] {
-  transition: transform 500ms;
+.back-enter {
+  transform: translateX(-100%);
+}
+.back-enter-active {
+  transform: translateX(0);
+}
+.back-exit {
+  transform: translateX(0);
+}
+.back-exit-active {
+  transform: translate(100%);
 }
 
-/* If set prop destroy={false}, `time` prop will be invalid, use css to set duration */
-.slide-routes [class$='-active'] {
-  transition: transform 1s;
+.next-enter {
+  transform: translateX(100%);
 }
-
-/* All css rules for animation */
-.slide-routes {
-  .back-enter {
-    transform: translateX(-100%);
-  }
-  .back-enter-active {
-    transform: translateX(0);
-  }
-  .back-exit {
-    transform: translateX(0);
-  }
-  .back-exit-active {
-    transform: translate(100%);
-  }
-
-  .next-enter {
-    transform: translateX(100%);
-  }
-  .next-enter-active {
-    transform: translateX(0);
-  }
-  .next-exit {
-    transform: translateX(0);
-  }
-  .next-exit-active {
-    transform: translateX(-100%);
-  }
+.next-enter-active {
+  transform: translateX(0);
+}
+.next-exit {
+  transform: translateX(0);
+}
+.next-exit-active {
+  transform: translateX(-100%);
 }
 ```
 
