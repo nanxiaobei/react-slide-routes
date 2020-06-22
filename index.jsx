@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
-import { Switch } from 'react-router-dom';
 import t from 'prop-types';
+import { Switch } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import './index.less';
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
 
 /**
  * save
@@ -23,7 +24,58 @@ const save = (key, initVal) => {
 };
 
 /**
- * history
+ * styles
+ */
+const getStyles = ({ duration, effect, direction }) => css`
+  display: grid;
+  margin-left: -32px;
+  margin-right: -32px;
+  overflow: hidden;
+  .slide {
+    padding-left: 32px;
+    padding-right: 32px;
+    grid-area: 1 / 1 / 2 / 2;
+    &:empty,
+    &:empty ~ .slide {
+      transform: translateX(0);
+      transition: none;
+    }
+  }
+  .${direction}-enter-active, .${direction}-exit-active {
+    transition: transform ${duration}ms ${effect};
+  }
+
+  // back
+  .back-enter {
+    transform: translateX(-100%);
+  }
+  .back-enter-active {
+    transform: translateX(0);
+  }
+  .back-exit {
+    transform: translateX(0);
+  }
+  .back-exit-active {
+    transform: translate(100%);
+  }
+
+  // next
+  .next-enter {
+    transform: translateX(100%);
+  }
+  .next-enter-active {
+    transform: translateX(0);
+  }
+  .next-exit {
+    transform: translateX(0);
+  }
+  .next-exit-active {
+    transform: translateX(-100%);
+  }
+`;
+
+/**
+ * route history
  */
 const [getPaths, setPaths] = save('::slide::history::', []);
 let prevPath = getPaths()[0];
@@ -32,8 +84,8 @@ let direction;
 /**
  * SlideRoutes
  */
-const SlideRoutes = ({ location, time: timeout = 200, destroy = true, children }) => {
-  const CSSProps = useRef(destroy ? { timeout } : { addEndListener() {} });
+const SlideRoutes = ({ location, duration, effect, destroy, children }) => {
+  const CSSProps = useRef(destroy ? { timeout: duration } : { addEndListener() {} });
 
   const { pathname } = location;
   if (prevPath !== pathname) {
@@ -58,6 +110,7 @@ const SlideRoutes = ({ location, time: timeout = 200, destroy = true, children }
     <TransitionGroup
       className="slide-routes"
       childFactory={(child) => React.cloneElement(child, { classNames: direction })}
+      css={getStyles({ duration, effect, direction })}
     >
       <CSSTransition {...CSSProps.current} key={location.pathname}>
         <div className="slide">
@@ -68,9 +121,16 @@ const SlideRoutes = ({ location, time: timeout = 200, destroy = true, children }
   );
 };
 
+SlideRoutes.defaultProps = {
+  duration: 200,
+  effect: 'ease',
+  destroy: true,
+};
+
 SlideRoutes.propTypes = {
-  location: t.object,
-  time: t.string,
+  location: t.object.isRequired,
+  duration: t.number,
+  effect: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
   destroy: t.bool,
   children: t.node,
 };
