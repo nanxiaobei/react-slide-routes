@@ -32,9 +32,9 @@ const App = () => {
   return (
     <>
       <SlideRoutes location={location}>
-        <Route path="/" component={Home} exact />
-        <Route path="/about" component={About} />
-        <Route path="/contact" component={Contact} />
+        <Route path="/" render={Home} exact />
+        <Route path="/about" render={About} />
+        <Route path="/contact" render={Contact} />
       </SlideRoutes>
     </>
   );
@@ -51,8 +51,8 @@ const App = () => {
 
 | Prop       | Type      | Required | Default    | Description                                                                                               |
 | ---------- | --------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------- |
-| `location` | `object`  | Yes      | `location` | `location` from `react-router-dom`, required                                                              |
-| `time`     | `number`  |          | `200`      | Time of transition duration in milliseconds. hen set, css rules is also needed, see below                 |
+| `location` | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                              |
+| `time`     | `number`  |          | `200`      | Time of transition duration in milliseconds. when set, css rules is also needed, see below                |
 | `destroy`  | `boolean` |          | `true`     | If `false`, the prev route dom is still exist, just invisible, and `time` prop will be invalid, see below |
 
 ## CSS
