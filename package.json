@@ -19,7 +19,7 @@
   "license": "MIT",
   "files": [
     "dist",
-    "index.jsx"
+    "SlideRoutes.jsx"
   ],
   "scripts": {
     "build": "rimraf dist && rollup -c"

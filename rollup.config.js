@@ -1,7 +1,7 @@
 import babel from 'rollup-plugin-babel';
 import pkg from './package.json';
 
-const input = 'index.jsx';
+const input = 'SlideRoutes.jsx';
 const external = () => true;
 const plugins = [
   babel({
