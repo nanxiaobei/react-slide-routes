@@ -28,12 +28,8 @@ const save = (key, initVal) => {
  */
 const getCss = ({ duration, effect, direction }) => css`
   display: grid;
-  margin-left: -32px;
-  margin-right: -32px;
   overflow: hidden;
   > * {
-    padding-left: 32px;
-    padding-right: 32px;
     grid-area: 1 / 1 / 2 / 2;
   }
   > *:not(:only-child) {
