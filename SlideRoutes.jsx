@@ -105,7 +105,7 @@ const SlideRoutes = ({ location, duration, effect, destroy, children }) => {
       childFactory={(child) => cloneElement(child, { classNames: direction })}
       css={getCss({ duration, effect, direction })}
     >
-      <CSSTransition key={location.pathname} {...CSSProps}>
+      <CSSTransition key={pathname} {...CSSProps}>
         <Switch location={location}>{children}</Switch>
       </CSSTransition>
     </TransitionGroup>
