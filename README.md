@@ -32,13 +32,16 @@ const App = () => {
   return (
     <>
       <SlideRoutes location={location}>
-        <Route path="/" render={Home} exact />
-        <Route path="/about" render={About} />
-        <Route path="/contact" render={Contact} />
+        <Route path="/" component={Home} exact />
+        <Route path="/about" component={About} />
+        <Route path="/contact" component={Contact} />
       </SlideRoutes>
     </>
   );
 };
+
+// If the wrapper of component is <React.Fragment>, only the :first-child will have animation:
+// const Home = () => (<> <h1>Title</h1> <div>Content</div> </>);  ← only <h1> have animation
 ```
 
 ## Live
