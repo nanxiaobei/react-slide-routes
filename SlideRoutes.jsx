@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core';
+import { cloneElement } from 'react';
 import t from 'prop-types';
 import { Switch } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-/** @jsx jsx */
-import { css, jsx } from '@emotion/core';
 
 /**
  * save
@@ -26,23 +26,20 @@ const save = (key, initVal) => {
 /**
  * styles
  */
-const getStyles = ({ duration, effect, direction }) => css`
+const getCss = ({ duration, effect, direction }) => css`
   display: grid;
   margin-left: -32px;
   margin-right: -32px;
   overflow: hidden;
-  .slide {
+  > * {
     padding-left: 32px;
     padding-right: 32px;
     grid-area: 1 / 1 / 2 / 2;
-    &:empty,
-    &:empty ~ .slide {
-      transform: translateX(0);
-      transition: none;
-    }
   }
-  .${direction}-enter-active, .${direction}-exit-active {
-    transition: transform ${duration}ms ${effect};
+  > *:not(:only-child) {
+    &.${direction}-enter-active, &.${direction}-exit-active {
+      transition: transform ${duration}ms ${effect};
+    }
   }
 
   // back
@@ -85,8 +82,6 @@ let direction;
  * SlideRoutes
  */
 const SlideRoutes = ({ location, duration, effect, destroy, children }) => {
-  const CSSProps = useRef(destroy ? { timeout: duration } : { addEndListener() {} });
-
   const { pathname } = location;
   if (prevPath !== pathname) {
     prevPath = pathname;
@@ -106,16 +101,16 @@ const SlideRoutes = ({ location, duration, effect, destroy, children }) => {
     });
   }
 
+  const CSSProps = destroy ? { timeout: duration } : { addEndListener() {} };
+
   return (
     <TransitionGroup
       className="slide-routes"
-      childFactory={(child) => React.cloneElement(child, { classNames: direction })}
-      css={getStyles({ duration, effect, direction })}
+      childFactory={(child) => cloneElement(child, { classNames: direction })}
+      css={getCss({ duration, effect, direction })}
     >
-      <CSSTransition {...CSSProps.current} key={location.pathname}>
-        <div className="slide">
-          <Switch location={location}>{children}</Switch>
-        </div>
+      <CSSTransition key={location.pathname} {...CSSProps}>
+        <Switch location={location}>{children}</Switch>
       </CSSTransition>
     </TransitionGroup>
   );
