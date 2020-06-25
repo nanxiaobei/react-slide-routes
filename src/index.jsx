@@ -1,27 +1,31 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { useEffect, cloneElement } from 'react';
+import { useEffect, useRef, useMemo, cloneElement } from 'react';
 import t from 'prop-types';
 import { Switch } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 /**
- * save
+ * useSave
  */
-const save = (key, initVal) => {
-  const getVal = () => JSON.parse(sessionStorage.getItem(key));
-  const setVal = (val) => sessionStorage.setItem(key, JSON.stringify(val));
-  const removeVal = () => sessionStorage.removeItem(key);
-  if (getVal() === null) setVal(initVal);
-  const get = () => {
-    const val = getVal();
-    return val === null ? undefined : val;
-  };
-  const set = (val) => {
-    const newVal = typeof val === 'function' ? val(get()) : val;
-    newVal === undefined ? removeVal() : setVal(newVal);
-  };
-  return [get, set];
+const useSave = (key, initVal) => {
+  const initRef = useRef(initVal);
+
+  return useMemo(() => {
+    const get = () => JSON.parse(sessionStorage.getItem(key));
+    const setVal = (val) => sessionStorage.setItem(key, JSON.stringify(val));
+    const removeVal = () => sessionStorage.removeItem(key);
+
+    const init = initRef.current;
+    if (init !== undefined && get() === null) setVal(init);
+
+    const set = (val) => {
+      const newVal = typeof val === 'function' ? val(get()) : val;
+      newVal === undefined ? removeVal() : setVal(newVal);
+    };
+
+    return [get, set];
+  }, [key]);
 };
 
 /**
@@ -69,32 +73,29 @@ const getCss = ({ duration, effect, direction }) => css`
 `;
 
 /**
- * route history
- */
-const [getPaths, setPaths] = save('::slide::history::', []);
-let prevPath = getPaths()[0];
-let direction;
-
-/**
  * SlideRoutes
  */
 const SlideRoutes = ({ location, duration, effect, destroy, children }) => {
+  const [getPathList, setPathList] = useSave('::slide::history::', []);
+  const prevPath = useRef(getPathList()[0]);
+  let direction = '';
+
   const { pathname } = location;
-  if (prevPath !== pathname) {
-    prevPath = pathname;
+  if (prevPath.current !== pathname) {
+    prevPath.current = pathname;
 
-    setPaths((stack) => {
-      const lastIndex = stack.lastIndexOf(pathname);
+    setPathList((pathList) => {
+      const index = pathList.lastIndexOf(pathname);
 
-      if (lastIndex === -1) {
+      if (index === -1) {
         direction = 'next';
-        stack.push(pathname);
+        pathList.push(pathname);
       } else {
         direction = 'back';
-        stack.length = lastIndex + 1;
+        pathList.length = index + 1;
       }
 
-      return stack;
+      return pathList;
     });
   }
 
@@ -102,9 +103,9 @@ const SlideRoutes = ({ location, duration, effect, destroy, children }) => {
 
   useEffect(() => {
     return () => {
-      setPaths();
+      setPathList();
     };
-  }, []);
+  }, [setPathList]);
 
   return (
     <TransitionGroup
