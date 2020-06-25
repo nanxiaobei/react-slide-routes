@@ -11,6 +11,7 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 const save = (key, initVal) => {
   const getVal = () => JSON.parse(sessionStorage.getItem(key));
   const setVal = (val) => sessionStorage.setItem(key, JSON.stringify(val));
+  const removeVal = () => sessionStorage.removeItem(key);
   if (getVal() === null) setVal(initVal);
   const get = () => {
     const val = getVal();
@@ -18,7 +19,7 @@ const save = (key, initVal) => {
   };
   const set = (val) => {
     const newVal = typeof val === 'function' ? val(get()) : val;
-    setVal(newVal);
+    newVal === undefined ? removeVal() : setVal(newVal);
   };
   return [get, set];
 };
