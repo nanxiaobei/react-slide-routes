@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { cloneElement } from 'react';
+import { useEffect, cloneElement } from 'react';
 import t from 'prop-types';
 import { Switch } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
@@ -98,6 +98,12 @@ const SlideRoutes = ({ location, duration, effect, destroy, children }) => {
   }
 
   const CSSProps = destroy ? { timeout: duration } : { addEndListener() {} };
+
+  useEffect(() => {
+    return () => {
+      setPaths();
+    };
+  }, []);
 
   return (
     <TransitionGroup
