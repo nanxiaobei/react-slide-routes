@@ -30,17 +30,15 @@ import { Route, useLocation } from 'react-router-dom';
 const App = () => {
   const location = useLocation();
   return (
-    <>
-      <SlideRoutes location={location}>
-        <Route path="/" component={Home} exact />
-        <Route path="/about" component={About} />
-        <Route path="/contact" component={Contact} />
-      </SlideRoutes>
-    </>
+    <SlideRoutes location={location}>
+      <Route path="/" component={Home} exact />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+    </SlideRoutes>
   );
 };
 
-// If the wrapper of component is <React.Fragment>, only the :first-child will have animation:
+// If the wrapper of component is <React.Fragment>, only the :first-child will have animation.
 // const Home = () => (<> <h1>Title</h1> <div>Content</div> </>);  ← only <h1> have animation
 ```
 
