@@ -17,7 +17,9 @@ The easiest way to slide React routes
 
 ```shell script
 yarn add react-slide-routes
+
 # or
+
 npm install react-slide-routes
 ```
 
