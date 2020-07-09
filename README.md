@@ -55,13 +55,13 @@ const App = () => {
 | Prop       | Type      | Required | Default    | Description                                                                                       |
 | ---------- | --------- | -------- | ---------- | ------------------------------------------------------------------------------------------------- |
 | `location` | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                      |
-| `duration` | `number`  |          | `200`      | `transition-duration` in milliseconds                                                             |
-| `effect`   | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'` |
+| `time`     | `number`  |          | `200`      | `transition-time` in milliseconds                                                                 |
+| `type`     | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'` |
 | `destroy`  | `boolean` |          | `true`     | If `false`, the passed page will still exits in dom, only invisible                               |
 
 ## CSS
 
-All css rules for slide effect, can be useful for customization:
+All CSS rules for animation, can be useful for customization:
 
 ```css
 /* back */

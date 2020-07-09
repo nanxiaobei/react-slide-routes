@@ -31,7 +31,7 @@ const useSave = (key, initVal) => {
 /**
  * styles
  */
-const getCss = ({ duration, effect, direction }) => css`
+const getCSS = (time, type, direction) => css`
   display: grid;
   overflow: hidden;
   > * {
@@ -39,7 +39,7 @@ const getCss = ({ duration, effect, direction }) => css`
   }
   > *:not(:only-child) {
     &.${direction}-enter-active, &.${direction}-exit-active {
-      transition: transform ${duration}ms ${effect};
+      transition: transform ${time}ms ${type};
     }
   }
 
@@ -75,10 +75,10 @@ const getCss = ({ duration, effect, direction }) => css`
 /**
  * SlideRoutes
  */
-const SlideRoutes = ({ location, duration, effect, destroy, children }) => {
+const SlideRoutes = ({ location, time, type, destroy, children }) => {
   const [getPathList, setPathList] = useSave('::slide::history::', []);
   const prevPath = useRef(getPathList()[0]);
-  let direction = '';
+  const move = useRef('');
 
   const { pathname } = location;
   if (prevPath.current !== pathname) {
@@ -88,10 +88,10 @@ const SlideRoutes = ({ location, duration, effect, destroy, children }) => {
       const index = pathList.lastIndexOf(pathname);
 
       if (index === -1) {
-        direction = 'next';
+        move.current = 'next';
         pathList.push(pathname);
       } else {
-        direction = 'back';
+        move.current = 'back';
         pathList.length = index + 1;
       }
 
@@ -99,19 +99,20 @@ const SlideRoutes = ({ location, duration, effect, destroy, children }) => {
     });
   }
 
-  const CSSProps = destroy ? { timeout: duration } : { addEndListener() {} };
-
   useEffect(() => {
     return () => {
       setPathList();
     };
   }, [setPathList]);
 
+  const direction = move.current;
+  const CSSProps = destroy ? { timeout: time } : { addEndListener() {} };
+
   return (
     <TransitionGroup
       className="slide-routes"
       childFactory={(child) => cloneElement(child, { classNames: direction })}
-      css={getCss({ duration, effect, direction })}
+      css={getCSS(time, type, direction)}
     >
       <CSSTransition key={pathname} {...CSSProps}>
         <Switch location={location}>{children}</Switch>
@@ -121,15 +122,15 @@ const SlideRoutes = ({ location, duration, effect, destroy, children }) => {
 };
 
 SlideRoutes.defaultProps = {
-  duration: 200,
-  effect: 'ease',
+  time: 200,
+  type: 'ease',
   destroy: true,
 };
 
 SlideRoutes.propTypes = {
   location: t.object.isRequired,
-  duration: t.number,
-  effect: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
+  time: t.number,
+  type: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
   destroy: t.bool,
   children: t.node,
 };
