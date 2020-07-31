@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
 import React, {
+  useState,
   useEffect,
   useCallback,
   useMemo,
@@ -32,17 +33,18 @@ const save = (key, init) => {
 const useSave = (key, initVal) => {
   const initRef = useRef(initVal);
   const [getVal, setVal] = useMemo(() => save(key, initRef.current), [key]);
-  const valRef = useRef(getVal());
+
+  const [state, setState] = useState(getVal());
 
   const set = useCallback(
     (val) => {
       setVal(val);
-      valRef.current = val;
+      setState(val);
     },
     [setVal]
   );
 
-  return [valRef.current, set];
+  return [state, set];
 };
 
 /**
