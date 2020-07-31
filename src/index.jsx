@@ -176,9 +176,9 @@ const SlideRoutes = ({ location, type, pathList, duration, timing, destroy, chil
 
   useEffect(() => {
     return () => {
-      if (historyList) setHistoryList(undefined);
+      setHistoryList(undefined);
     };
-  }, [historyList, setHistoryList]);
+  }, [setHistoryList]);
 
   const direction = move.current;
   const CSSProps = destroy ? { timeout: duration } : { addEndListener() {} };
