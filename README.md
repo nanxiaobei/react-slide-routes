@@ -49,14 +49,14 @@ const App = () => {
 
 ## API
 
-| Prop        | Type      | Required | Default    | Description                                                                                           |
-| ----------- | --------- | -------- | ---------- | ----------------------------------------------------------------------------------------------------- |
-| `location`  | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                          |
-| `animation` | `string`  |          | `'slide'`  | Animation effect type, `'slide'` or `'rotate'`                                                        |
-| `pathList`  | `array`   |          |            | Pre-defined `location.pathname` list, useful when with a incoming url, you want to "back" to some url |
-| `duration`  | `number`  |          | `200`      | `transition-duration` in `ms`                                                                         |
-| `timing`    | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'`     |
-| `destroy`   | `boolean` |          | `true`     | If `false`, the passed page will still exits in dom, only invisible                                   |
+| Prop        | Type      | Required | Default    | Description                                                                                            |
+| ----------- | --------- | -------- | ---------- | ------------------------------------------------------------------------------------------------------ |
+| `location`  | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                           |
+| `animation` | `string`  |          | `'slide'`  | Animation effect type, `'slide'` or `'rotate'`                                                         |
+| `pathList`  | `array`   |          |            | Pre-defined `location.pathname` list, useful when with an incoming url, you want to "back" to some url |
+| `duration`  | `number`  |          | `200`      | `transition-duration` in `ms`                                                                          |
+| `timing`    | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'`      |
+| `destroy`   | `boolean` |          | `true`     | If `false`, the passed page will still exits in dom, only invisible                                    |
 
 ## FAQ
 
