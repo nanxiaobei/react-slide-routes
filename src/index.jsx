@@ -48,7 +48,7 @@ const useSave = (key, initVal) => {
 /**
  * styles
  */
-const getCSS = (duration, effect, direction) => css`
+const getCSS = (duration, timing, direction) => css`
   display: grid;
   margin-left: -32px;
   margin-right: -32px;
@@ -59,7 +59,7 @@ const getCSS = (duration, effect, direction) => css`
   }
   .item:not(:only-child) {
     &.${direction}-enter-active, &.${direction}-exit-active {
-      transition: transform ${duration}ms ${effect};
+      transition: transform ${duration}ms ${timing};
     }
   }
 
@@ -134,7 +134,7 @@ const getCSS = (duration, effect, direction) => css`
 /**
  * SlideRoutes
  */
-const SlideRoutes = ({ location, type, pathList, duration, effect, destroy, children }) => {
+const SlideRoutes = ({ location, type, pathList, duration, timing, destroy, children }) => {
   const [historyList, setHistoryList] = useSave('::slide::history::', []);
 
   const hasPathList = useMemo(() => {
@@ -187,7 +187,7 @@ const SlideRoutes = ({ location, type, pathList, duration, effect, destroy, chil
     <TransitionGroup
       className={`slide-routes ${type}`}
       childFactory={(child) => cloneElement(child, { classNames: direction })}
-      css={getCSS(duration, effect, direction)}
+      css={getCSS(duration, timing, direction)}
     >
       <CSSTransition key={pathname} {...CSSProps}>
         <Switch location={location}>
@@ -208,7 +208,7 @@ const SlideRoutes = ({ location, type, pathList, duration, effect, destroy, chil
 SlideRoutes.defaultProps = {
   type: 'slide',
   duration: 200,
-  effect: 'ease',
+  timing: 'ease',
   destroy: true,
 };
 
@@ -217,7 +217,7 @@ SlideRoutes.propTypes = {
   type: t.oneOf(['slide', 'rotate']),
   pathList: t.array,
   duration: t.number,
-  effect: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
+  timing: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
   destroy: t.bool,
   children: t.node,
 };
