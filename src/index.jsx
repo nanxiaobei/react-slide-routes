@@ -15,7 +15,7 @@ import { Switch, Route } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 /**
- * useSave
+ * save
  */
 const save = (key, init) => {
   const getRaw = () => sessionStorage.getItem(key);
@@ -25,11 +25,14 @@ const save = (key, init) => {
   if (init !== undefined && getRaw() === null) set(init);
 
   const getVal = () => JSON.parse(getRaw());
-  const setVal = (val) => (val === undefined ? remove() : setVal(val));
+  const setVal = (val) => (val === undefined ? remove() : set(val));
 
   return [getVal, setVal];
 };
 
+/**
+ * useSave
+ */
 const useSave = (key, initVal) => {
   const initRef = useRef(initVal);
   const [getVal, setVal] = useMemo(() => save(key, initRef.current), [key]);
