@@ -52,19 +52,19 @@ const App = () => {
 | Prop       | Type      | Required | Default    | Description                                                                                       |
 | ---------- | --------- | -------- | ---------- | ------------------------------------------------------------------------------------------------- |
 | `location` | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                      |
-| `type`     | `string`  |          | `'slide'`  | `slide` or `'rotate'`, animation type                                                             |
+| `type`     | `string`  |          | `'slide'`  | `slide` or `'rotate'`, animation effect type                                                      |
 | `pathList` | `array`   |          |            | Predefined pathname order, useful for when init a page, you want to "back" to some url            |
 | `duration` | `number`  |          | `200`      | `transition-duration` in milliseconds                                                             |
-| `effect`   | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'` |
+| `timing`   | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'` |
 | `destroy`  | `boolean` |          | `true`     | If `false`, the passed page will still exits in dom, only invisible                               |
 
 ## FAQ
 
 ### How `type` works?
 
-Default is `'slide'`, now there is another `'rotate'` type. You can just try the amazing rotating animation effect by passing `type="rotate"`.
+Default is `'slide'` type, now there is another `'rotate'` type. You can just try the amazing rotating animation effect by passing `type="rotate"`.
 
-## How `pathList` works?
+### How `pathList` works?
 
 By default, the incoming URL is the earliest URL, and the subsequent pushed URL is "forward".
 
