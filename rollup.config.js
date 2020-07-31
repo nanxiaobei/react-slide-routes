@@ -13,6 +13,6 @@ const plugins = [
 ];
 
 export default [
-  { input, output: { file: pkg.main, format: 'cjs' }, external, plugins },
+  { input, output: { file: pkg.main, format: 'cjs', exports: 'auto' }, external, plugins },
   { input, output: { file: pkg.module, format: 'es' }, external, plugins },
 ];
