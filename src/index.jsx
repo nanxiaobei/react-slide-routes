@@ -55,11 +55,7 @@ const useSave = (key, initVal) => {
  */
 const getCSS = (duration, timing, direction) => css`
   display: grid;
-  margin-left: -32px;
-  margin-right: -32px;
   .item {
-    padding-left: 32px;
-    padding-right: 32px;
     grid-area: 1 / 1 / 2 / 2;
   }
   .item:not(:only-child) {
