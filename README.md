@@ -60,11 +60,11 @@ const App = () => {
 
 ## FAQ
 
-### How prop `type` works?
+### How `type` prop works?
 
 Default is `'slide'` type, now there is another `'rotate'` type. You can just try the amazing rotating animation effect by passing `type="rotate"`.
 
-### How prop `pathList` works?
+### How `pathList` prop works?
 
 By default, the incoming URL is the earliest URL, and the subsequent pushed URL is "forward".
 
