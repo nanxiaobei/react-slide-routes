@@ -52,7 +52,7 @@ const App = () => {
 | Prop       | Type      | Required | Default    | Description                                                                                       |
 | ---------- | --------- | -------- | ---------- | ------------------------------------------------------------------------------------------------- |
 | `location` | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                      |
-| `type`     | `string`  |          | `'slide'`  | `slide` or `'rotate'`, animation effect type                                                      |
+| `type`     | `string`  |          | `'slide'`  | `'slide'` or `'rotate'`, animation effect type                                                    |
 | `pathList` | `array`   |          |            | Predefined pathname order, useful for when init a page, you want to "back" to some url            |
 | `duration` | `number`  |          | `200`      | `transition-duration` in milliseconds                                                             |
 | `timing`   | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'` |
