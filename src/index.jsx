@@ -1,136 +1,223 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
-import { useEffect, useRef, useMemo, cloneElement } from 'react';
+import React, {
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  cloneElement,
+  createElement,
+  Children,
+} from 'react';
 import t from 'prop-types';
-import { Switch } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 /**
  * useSave
  */
+const save = (key, init) => {
+  const getRaw = () => sessionStorage.getItem(key);
+  const set = (val) => sessionStorage.setItem(key, JSON.stringify(val));
+  const remove = () => sessionStorage.removeItem(key);
+
+  if (init !== undefined && getRaw() === null) set(init);
+
+  const getVal = () => JSON.parse(getRaw());
+  const setVal = (val) => (val === undefined ? remove() : setVal(val));
+
+  return [getVal, setVal];
+};
+
 const useSave = (key, initVal) => {
   const initRef = useRef(initVal);
+  const [getVal, setVal] = useMemo(() => save(key, initRef.current), [key]);
+  const valRef = useRef(getVal());
 
-  return useMemo(() => {
-    const get = () => JSON.parse(sessionStorage.getItem(key));
-    const setVal = (val) => sessionStorage.setItem(key, JSON.stringify(val));
-    const removeVal = () => sessionStorage.removeItem(key);
+  const set = useCallback(
+    (val) => {
+      setVal(val);
+      valRef.current = val;
+    },
+    [setVal]
+  );
 
-    const init = initRef.current;
-    if (init !== undefined && get() === null) setVal(init);
-
-    const set = (val) => {
-      const newVal = typeof val === 'function' ? val(get()) : val;
-      newVal === undefined ? removeVal() : setVal(newVal);
-    };
-
-    return [get, set];
-  }, [key]);
+  return [valRef.current, set];
 };
 
 /**
  * styles
  */
-const getCSS = (time, type, direction) => css`
+const getCSS = (duration, effect, direction) => css`
   display: grid;
-  overflow: hidden;
-  > * {
+  margin-left: -32px;
+  margin-right: -32px;
+  .item {
+    padding-left: 32px;
+    padding-right: 32px;
     grid-area: 1 / 1 / 2 / 2;
   }
-  > *:not(:only-child) {
+  .item:not(:only-child) {
     &.${direction}-enter-active, &.${direction}-exit-active {
-      transition: transform ${time}ms ${type};
+      transition: transform ${duration}ms ${effect};
     }
   }
 
-  // back
-  .back-enter {
-    transform: translateX(-100%);
-  }
-  .back-enter-active {
-    transform: translateX(0);
-  }
-  .back-exit {
-    transform: translateX(0);
-  }
-  .back-exit-active {
-    transform: translate(100%);
-  }
+  &.slide {
+    overflow: hidden;
 
-  // next
-  .next-enter {
-    transform: translateX(100%);
+    // back
+    .back-enter {
+      transform: translateX(-100%);
+    }
+    .back-enter-active {
+      transform: translateX(0);
+    }
+    .back-exit {
+      transform: translateX(0);
+    }
+    .back-exit-active {
+      transform: translate(100%);
+    }
+
+    // next
+    .next-enter {
+      transform: translateX(100%);
+    }
+    .next-enter-active {
+      transform: translateX(0);
+    }
+    .next-exit {
+      transform: translateX(0);
+    }
+    .next-exit-active {
+      transform: translateX(-100%);
+    }
   }
-  .next-enter-active {
-    transform: translateX(0);
-  }
-  .next-exit {
-    transform: translateX(0);
-  }
-  .next-exit-active {
-    transform: translateX(-100%);
+  &.rotate {
+    perspective: 1000px;
+
+    .item {
+      backface-visibility: hidden;
+    }
+
+    // back
+    .back-enter {
+      transform: rotateY(-180deg);
+    }
+    .back-enter-active {
+      transform: rotateY(0);
+    }
+    .back-exit {
+      transform: rotateY(0);
+    }
+    .back-exit-active {
+      transform: rotateY(180deg);
+    }
+
+    // next
+    .next-enter {
+      transform: rotateY(180deg);
+    }
+    .next-enter-active {
+      transform: rotateY(0);
+    }
+    .next-exit {
+      transform: rotateY(0);
+    }
+    .next-exit-active {
+      transform: rotateY(-180deg);
+    }
   }
 `;
 
 /**
  * SlideRoutes
  */
-const SlideRoutes = ({ location, time, type, destroy, children }) => {
-  const [getPathList, setPathList] = useSave('::slide::history::', []);
-  const prevPath = useRef(getPathList()[0]);
-  const move = useRef('');
+const SlideRoutes = ({ location, type, pathList, duration, effect, destroy, children }) => {
+  const [historyList, setHistoryList] = useSave('::slide::history::', []);
+
+  const hasPathList = useMemo(() => {
+    const has = pathList?.length > 0;
+    if (has && historyList) setHistoryList(undefined);
+    return has;
+  }, [historyList, pathList, setHistoryList]);
 
   const { pathname } = location;
+  const prevPath = useRef(hasPathList ? pathname : historyList?.[0]);
+  const move = useRef('');
+
   if (prevPath.current !== pathname) {
-    prevPath.current = pathname;
+    if (hasPathList) {
+      const prevIndex = pathList.indexOf(prevPath.current);
+      const nextIndex = pathList.indexOf(pathname);
 
-    setPathList((pathList) => {
-      const index = pathList.lastIndexOf(pathname);
-
-      if (index === -1) {
+      if (nextIndex > prevIndex) {
         move.current = 'next';
-        pathList.push(pathname);
       } else {
         move.current = 'back';
-        pathList.length = index + 1;
+      }
+    } else {
+      const nextIndex = historyList.lastIndexOf(pathname);
+
+      if (nextIndex === -1) {
+        move.current = 'next';
+        historyList.push(pathname);
+      } else {
+        move.current = 'back';
+        historyList.length = nextIndex + 1;
       }
 
-      return pathList;
-    });
+      setHistoryList([...historyList]);
+    }
+
+    prevPath.current = pathname;
   }
 
   useEffect(() => {
     return () => {
-      setPathList();
+      if (historyList) setHistoryList(undefined);
     };
-  }, [setPathList]);
+  }, [historyList, setHistoryList]);
 
   const direction = move.current;
-  const CSSProps = destroy ? { timeout: time } : { addEndListener() {} };
+  const CSSProps = destroy ? { timeout: duration } : { addEndListener() {} };
 
   return (
     <TransitionGroup
-      className="slide-routes"
+      className={`slide-routes ${type}`}
       childFactory={(child) => cloneElement(child, { classNames: direction })}
-      css={getCSS(time, type, direction)}
+      css={getCSS(duration, effect, direction)}
     >
       <CSSTransition key={pathname} {...CSSProps}>
-        <Switch location={location}>{children}</Switch>
+        <Switch location={location}>
+          {Children.map(children, (child) => {
+            if (!child) return child;
+
+            const { render, component, ...restProps } = child.props;
+            const element = render ? render() : createElement(component);
+
+            return <Route {...restProps} render={() => <div className="item">{element}</div>} />;
+          })}
+        </Switch>
       </CSSTransition>
     </TransitionGroup>
   );
 };
 
 SlideRoutes.defaultProps = {
-  time: 200,
-  type: 'ease',
+  type: 'slide',
+  duration: 200,
+  effect: 'ease',
   destroy: true,
 };
 
 SlideRoutes.propTypes = {
   location: t.object.isRequired,
-  time: t.number,
-  type: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
+  type: t.oneOf(['slide', 'rotate']),
+  pathList: t.array,
+  duration: t.number,
+  effect: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
   destroy: t.bool,
   children: t.node,
 };
