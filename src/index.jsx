@@ -96,7 +96,7 @@ const getCSS = (duration, timing, direction) => css`
     }
   }
   &.rotate {
-    perspective: 1000px;
+    perspective: 2000px;
 
     .item {
       backface-visibility: hidden;
@@ -197,8 +197,10 @@ const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy,
 
             const { render, component, ...restProps } = child.props;
             const element = render ? render() : createElement(component);
+            if (element.props.replace === true) return child;
 
-            return <Route {...restProps} render={() => <div className="item">{element}</div>} />;
+            const newRender = () => <div className="item">{element}</div>;
+            return { ...child, props: { ...restProps, render: newRender } };
           })}
         </Switch>
       </CSSTransition>
