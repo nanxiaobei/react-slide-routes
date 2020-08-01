@@ -11,7 +11,7 @@ import {
   Children,
 } from 'react';
 import t from 'prop-types';
-import { Switch, Route } from 'react-router-dom';
+import { Switch } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 /**
