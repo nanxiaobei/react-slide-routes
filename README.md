@@ -75,3 +75,10 @@ However, if URLs has an order, when push `'/a'`, expected to "back" to `'/a'`, n
 ## License
 
 [MIT License](https://github.com/nanxiaobei/react-slide-routes/blob/master/LICENSE) © [nanxiaobei](https://mrlee.me/)
+
+
+## Pitiless Ads
+
+If you use WeChat, please try "**FUTAKE**". It's a WeChat mini app for your inspiration moments. 🌈
+
+![FUTAKE](https://s3.jpg.cm/2021/04/22/TDQuS.png)
