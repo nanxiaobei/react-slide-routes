@@ -64,7 +64,7 @@ const getCSS = (duration, timing, direction) => css`
     }
   }
 
-  &.slide {
+  &.slide-h, &.slide {
     overflow: hidden;
 
     // back
@@ -78,7 +78,7 @@ const getCSS = (duration, timing, direction) => css`
       transform: translateX(0);
     }
     .back-exit-active {
-      transform: translate(100%);
+      transform: translateX(100%);
     }
 
     // next
@@ -93,6 +93,37 @@ const getCSS = (duration, timing, direction) => css`
     }
     .next-exit-active {
       transform: translateX(-100%);
+    }
+  }
+  &.slide-v {
+    overflow: hidden;
+
+    // back
+    .back-enter {
+      transform: translateY(-100%);
+    }
+    .back-enter-active {
+      transform: translateY(0);
+    }
+    .back-exit {
+      transform: translateY(0);
+    }
+    .back-exit-active {
+      transform: translateY(100%);
+    }
+
+    // next
+    .next-enter {
+      transform: translateY(100%);
+    }
+    .next-enter-active {
+      transform: translateY(0);
+    }
+    .next-exit {
+      transform: translateY(0);
+    }
+    .next-exit-active {
+      transform: translateY(-100%);
     }
   }
   &.rotate {
@@ -209,7 +240,7 @@ const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy,
 };
 
 SlideRoutes.defaultProps = {
-  animation: 'slide',
+  animation: 'slide-h',
   duration: 200,
   timing: 'ease',
   destroy: true,
@@ -217,7 +248,7 @@ SlideRoutes.defaultProps = {
 
 SlideRoutes.propTypes = {
   location: t.object.isRequired,
-  animation: t.oneOf(['slide', 'rotate']),
+  animation: t.oneOf(['slide', 'slide-h', 'slide-v', 'rotate']),
   pathList: t.array,
   duration: t.number,
   timing: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
