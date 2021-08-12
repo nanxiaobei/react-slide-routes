@@ -52,7 +52,7 @@ const App = () => {
 | Prop        | Type      | Required | Default    | Description                                                                                            |
 | ----------- | --------- | -------- | ---------- | ------------------------------------------------------------------------------------------------------ |
 | `location`  | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                           |
-| `animation` | `string`  |          | `'slide'`  | Animation effect type, `'slide'` or `'rotate'`                                                         |
+| `animation` | `string`  |          | `'slide-h'`  | Animation effect type, `'slide-h'`, `'slide-v'`, or `'rotate'`                                                         |
 | `pathList`  | `array`   |          |            | Pre-defined `location.pathname` list, useful when with an incoming url, you want to "back" to some url |
 | `duration`  | `number`  |          | `200`      | `transition-duration` in `ms`                                                                          |
 | `timing`    | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'`      |
@@ -62,7 +62,7 @@ const App = () => {
 
 ### How `animation` prop works?
 
-Default is `'slide'` type, there is another `'rotate'` type. You can just try the amazing rotating animation effect by passing `animation="rotate"`.
+Default is `'slide-h'` type which will slide horizontally. There is also `'slide-v'` for veritical sliding or `'rotate'` type. You can just try the amazing rotating animation effect by passing `animation="rotate"`.
 
 ### How `pathList` prop works?
 
