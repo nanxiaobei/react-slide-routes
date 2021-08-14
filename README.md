@@ -49,33 +49,18 @@ const App = () => {
 
 ## API
 
-| Prop        | Type      | Required | Default    | Description                                                                                            |
-| ----------- | --------- | -------- | ---------- | ------------------------------------------------------------------------------------------------------ |
-| `location`  | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                           |
-| `animation` | `string`  |          | `'slide-h'`  | Animation effect type, `'slide-h'`, `'slide-v'`, or `'rotate'`                                                         |
-| `pathList`  | `array`   |          |            | Pre-defined `location.pathname` list, useful when with an incoming url, you want to "back" to some url |
-| `duration`  | `number`  |          | `200`      | `transition-duration` in `ms`                                                                          |
-| `timing`    | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'`      |
-| `destroy`   | `boolean` |          | `true`     | If `false`, the passed page will still exits in dom, only invisible                                    |
-
-## FAQ
-
-### How `animation` prop works?
-
-Default is `'slide-h'` type which will slide horizontally. There is also `'slide-v'` for veritical sliding or `'rotate'` type. You can just try the amazing rotating animation effect by passing `animation="rotate"`.
-
-### How `pathList` prop works?
-
-By default, the incoming URL is the earliest URL, and the subsequent pushed URL is "forward".
-
-For example, if `'/b'` is the initial entry URL, then push `'/a'`, and `'/a'` will be "forward".
-
-However, if URLs has an order, when push `'/a'`, expected to "back" to `'/a'`, not "forward", then you can pass `pathList={['/a', '/b']}`
+| Prop        | Type      | Required | Default    | Description                                                                                              |
+| ----------- | --------- | -------- | ---------- | -------------------------------------------------------------------------------------------------------- |
+| `location`  | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                             |
+| `animation` | `string`  |          | `'slide'`  | Animation effect type, `'slide'`, `'vertical-slide'`, or `'rotate'`                                      |
+| `pathList`  | `array`   |          | `[]`       | Pre-defined `pathname` list, useful when enter a url, you want to "back" to some url (default "forward") |
+| `duration`  | `number`  |          | `200`      | `transition-duration` in `ms`                                                                            |
+| `timing`    | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'`        |
+| `destroy`   | `boolean` |          | `true`     | If `false`, the passed page will still exits in dom, only invisible                                      |
 
 ## License
 
 [MIT License](https://github.com/nanxiaobei/react-slide-routes/blob/master/LICENSE) © [nanxiaobei](https://mrlee.me/)
-
 
 ## Pitiless Ads
 
