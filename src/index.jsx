@@ -133,7 +133,7 @@ const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy,
   const selfKey = '::slide::history::';
 
   if (!hasMount.current) {
-    // 初始化
+    // mount
     hasMount.current = true;
 
     if (pathList.length > 0) {
@@ -150,7 +150,7 @@ const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy,
       }
     }
   } else {
-    // 更新
+    // update
     if (prevPath.current !== pathname) {
       if (pathList.length > 0) {
         const prevIndex = pathList.indexOf(prevPath.current);
