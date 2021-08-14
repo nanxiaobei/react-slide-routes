@@ -127,11 +127,10 @@ const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy,
   const { pathname } = location;
   const hasMount = useRef(false);
   const prevPath = useRef();
+  const direction = useRef('');
 
   const selfList = useRef();
   const selfKey = '::slide::history::';
-
-  const direction = useRef('');
 
   if (!hasMount.current) {
     // 初始化
