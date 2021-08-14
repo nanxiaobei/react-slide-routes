@@ -1,70 +1,24 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-  cloneElement,
-  createElement,
-  Children,
-} from 'react';
+import { useMemo, useRef, cloneElement, createElement, Children } from 'react';
 import t from 'prop-types';
 import { Switch } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-/**
- * save
- */
-const save = (key, init) => {
-  const getRaw = () => sessionStorage.getItem(key);
-  const set = (val) => sessionStorage.setItem(key, JSON.stringify(val));
-  const remove = () => sessionStorage.removeItem(key);
-
-  if (init !== undefined && getRaw() === null) set(init);
-
-  const getVal = () => JSON.parse(getRaw());
-  const setVal = (val) => (val === undefined ? remove() : set(val));
-
-  return [getVal, setVal];
-};
-
-/**
- * useSave
- */
-const useSave = (key, initVal) => {
-  const initRef = useRef(initVal);
-  const [getVal, setVal] = useMemo(() => save(key, initRef.current), [key]);
-
-  const [state, setState] = useState(getVal());
-
-  const set = useCallback(
-    (val) => {
-      setVal(val);
-      setState(val);
-    },
-    [setVal]
-  );
-
-  return [state, set];
-};
-
-/**
- * styles
- */
-const getCSS = (duration, timing, direction) => css`
+const getCss = (duration, timing, direction) => css`
   display: grid;
+
   .item {
     grid-area: 1 / 1 / 2 / 2;
-  }
-  .item:not(:only-child) {
-    &.${direction}-enter-active, &.${direction}-exit-active {
-      transition: transform ${duration}ms ${timing};
+
+    &:not(:only-child) {
+      &.${direction}-enter-active, &.${direction}-exit-active {
+        transition: transform ${duration}ms ${timing};
+      }
     }
   }
 
-  &.slide-h, &.slide {
+  &.slide {
     overflow: hidden;
 
     // back
@@ -81,21 +35,22 @@ const getCSS = (duration, timing, direction) => css`
       transform: translateX(100%);
     }
 
-    // next
-    .next-enter {
+    // forward
+    .forward-enter {
       transform: translateX(100%);
     }
-    .next-enter-active {
+    .forward-enter-active {
       transform: translateX(0);
     }
-    .next-exit {
+    .forward-exit {
       transform: translateX(0);
     }
-    .next-exit-active {
+    .forward-exit-active {
       transform: translateX(-100%);
     }
   }
-  &.slide-v {
+
+  &.vertical-slide {
     overflow: hidden;
 
     // back
@@ -112,20 +67,21 @@ const getCSS = (duration, timing, direction) => css`
       transform: translateY(100%);
     }
 
-    // next
-    .next-enter {
+    // forward
+    .forward-enter {
       transform: translateY(100%);
     }
-    .next-enter-active {
+    .forward-enter-active {
       transform: translateY(0);
     }
-    .next-exit {
+    .forward-exit {
       transform: translateY(0);
     }
-    .next-exit-active {
+    .forward-exit-active {
       transform: translateY(-100%);
     }
   }
+
   &.rotate {
     perspective: 2000px;
 
@@ -147,81 +103,85 @@ const getCSS = (duration, timing, direction) => css`
       transform: rotateY(180deg);
     }
 
-    // next
-    .next-enter {
+    // forward
+    .forward-enter {
       transform: rotateY(180deg);
     }
-    .next-enter-active {
+    .forward-enter-active {
       transform: rotateY(0);
     }
-    .next-exit {
+    .forward-exit {
       transform: rotateY(0);
     }
-    .next-exit-active {
+    .forward-exit-active {
       transform: rotateY(-180deg);
     }
   }
 `;
 
-/**
- * SlideRoutes
- */
 const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy, children }) => {
-  const [historyList, setHistoryList] = useSave('::slide::history::', []);
-
-  const hasPathList = useMemo(() => {
-    const has = pathList?.length > 0;
-    if (has && historyList) setHistoryList(undefined);
-    return has;
-  }, [historyList, pathList, setHistoryList]);
+  const cssProps = useMemo(() => {
+    return destroy ? { timeout: duration } : { addEndListener() {} };
+  }, [destroy, duration]);
 
   const { pathname } = location;
-  const prevPath = useRef(hasPathList ? pathname : historyList?.[0]);
-  const move = useRef('');
+  const hasMount = useRef(false);
+  const prevPath = useRef();
 
-  if (prevPath.current !== pathname) {
-    if (hasPathList) {
-      const prevIndex = pathList.indexOf(prevPath.current);
-      const nextIndex = pathList.indexOf(pathname);
+  const selfList = useRef();
+  const selfKey = '::slide::history::';
 
-      if (nextIndex > prevIndex) {
-        move.current = 'next';
-      } else {
-        move.current = 'back';
-      }
+  const direction = useRef('');
+
+  if (!hasMount.current) {
+    // 初始化
+    hasMount.current = true;
+
+    if (pathList.length > 0) {
+      prevPath.current = pathname;
     } else {
-      const nextIndex = historyList.lastIndexOf(pathname);
-
-      if (nextIndex === -1) {
-        move.current = 'next';
-        historyList.push(pathname);
+      const cacheList = sessionStorage.getItem(selfKey);
+      if (!cacheList) {
+        selfList.current = [pathname];
+        prevPath.current = pathname;
+        sessionStorage.setItem(selfKey, JSON.stringify(selfList.current));
       } else {
-        move.current = 'back';
-        historyList.length = nextIndex + 1;
+        selfList.current = JSON.parse(cacheList);
+        prevPath.current = selfList.current[selfList.current.length - 1];
+      }
+    }
+  } else {
+    // 更新
+    if (prevPath.current !== pathname) {
+      if (pathList.length > 0) {
+        const prevIndex = pathList.indexOf(prevPath.current);
+        const nextIndex = pathList.indexOf(pathname);
+        direction.current = prevIndex < nextIndex ? 'forward' : 'back';
+      } else {
+        const nextIndex = selfList.current.lastIndexOf(pathname);
+
+        if (nextIndex === -1) {
+          direction.current = 'forward';
+          selfList.current.push(pathname);
+        } else {
+          direction.current = 'back';
+          selfList.current.length = nextIndex + 1;
+        }
+
+        sessionStorage.setItem(selfKey, JSON.stringify(selfList.current));
       }
 
-      setHistoryList([...historyList]);
+      prevPath.current = pathname;
     }
-
-    prevPath.current = pathname;
   }
-
-  useEffect(() => {
-    return () => {
-      setHistoryList(undefined);
-    };
-  }, [setHistoryList]);
-
-  const direction = move.current;
-  const CSSProps = destroy ? { timeout: duration } : { addEndListener() {} };
 
   return (
     <TransitionGroup
       className={`slide-routes ${animation}`}
-      childFactory={(child) => cloneElement(child, { classNames: direction })}
-      css={getCSS(duration, timing, direction)}
+      childFactory={(child) => cloneElement(child, { classNames: direction.current })}
+      css={getCss(duration, timing, direction.current)}
     >
-      <CSSTransition key={pathname} {...CSSProps}>
+      <CSSTransition key={pathname} {...cssProps}>
         <Switch location={location}>
           {Children.map(children, (child) => {
             if (!child) return child;
@@ -240,7 +200,8 @@ const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy,
 };
 
 SlideRoutes.defaultProps = {
-  animation: 'slide-h',
+  animation: 'slide',
+  pathList: [],
   duration: 200,
   timing: 'ease',
   destroy: true,
@@ -248,7 +209,7 @@ SlideRoutes.defaultProps = {
 
 SlideRoutes.propTypes = {
   location: t.object.isRequired,
-  animation: t.oneOf(['slide', 'slide-h', 'slide-v', 'rotate']),
+  animation: t.oneOf(['slide', 'vertical-slide', 'rotate']),
   pathList: t.array,
   duration: t.number,
   timing: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
