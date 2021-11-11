@@ -174,6 +174,21 @@ const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy,
     }
   }
 
+  const routList = useMemo(() => {
+    return Children.map(children, (child) => {
+      if (!child) return child;
+
+      const { render, component, ...restProps } = child.props;
+      if (!render && !component) return child;
+
+      const element = render ? render() : createElement(component);
+      if (element.props.replace === true) return child;
+
+      const newRender = () => <div className="item">{element}</div>;
+      return { ...child, props: { ...restProps, render: newRender } };
+    });
+  }, [children]);
+
   return (
     <TransitionGroup
       className={`slide-routes ${animation}`}
@@ -181,18 +196,7 @@ const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy,
       css={getCss(duration, timing, direction.current)}
     >
       <CSSTransition key={pathname} {...cssProps}>
-        <Switch location={location}>
-          {Children.map(children, (child) => {
-            if (!child) return child;
-
-            const { render, component, ...restProps } = child.props;
-            const element = render ? render() : createElement(component);
-            if (element.props.replace === true) return child;
-
-            const newRender = () => <div className="item">{element}</div>;
-            return { ...child, props: { ...restProps, render: newRender } };
-          })}
-        </Switch>
+        <Switch location={location}>{routList}</Switch>
       </CSSTransition>
     </TransitionGroup>
   );
