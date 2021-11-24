@@ -6,12 +6,14 @@ The easiest way to slide React routes
 [![npm](https://img.shields.io/npm/dt/react-slide-routes?style=flat-square)](https://www.npmtrends.com/react-slide-routes)
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-slide-routes?style=flat-square)](https://bundlephobia.com/result?p=react-slide-routes)
 [![npm peer dependency version](https://img.shields.io/npm/dependency-version/react-slide-routes/peer/react?style=flat-square)](https://github.com/facebook/react)
-[![npm peer dependency version](https://img.shields.io/npm/dependency-version/react-slide-routes/peer/react-router?style=flat-square)](https://github.com/ReactTraining/react-router)
-[![GitHub](https://img.shields.io/github/license/nanxiaobei/react-slide-routes?style=flat-square)](https://github.com/nanxiaobei/react-slide-routes/blob/master/LICENSE)
+[![npm peer dependency version](https://img.shields.io/npm/dependency-version/react-slide-routes/peer/react-router?style=flat-square)](https://github.com/remix-run/react-router)
+[![GitHub](https://img.shields.io/github/license/nanxiaobei/react-slide-routes?style=flat-square)](https://github.com/nanxiaobei/react-slide-routes/blob/main/LICENSE)
 
 ## Fit
 
-`react-router` version >=4.0.0 and <6.0.0
+React Router v6
+
+> For React Router v5, please use `react-slide-routes@1.1.0`
 
 ## Add
 
@@ -20,25 +22,22 @@ yarn add react-slide-routes
 
 # or
 
-npm install react-slide-routes
+npm i react-slide-routes
 ```
 
 ## Use
 
 ```jsx
 import SlideRoutes from 'react-slide-routes';
-import { Route, useLocation } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
-const App = () => {
-  const location = useLocation();
-  return (
-    <SlideRoutes location={location}>
-      <Route path="/" component={Home} exact />
-      <Route path="/about" component={About} />
-      <Route path="/contact" component={Contact} />
-    </SlideRoutes>
-  );
-};
+const App = () => (
+  <SlideRoutes>
+    <Route path="/" element={<Home />} />
+    <Route path="/about" element={<About />} />
+    <Route path="/contact" element={<Contact />} />
+  </SlideRoutes>
+);
 ```
 
 ## Live
@@ -49,18 +48,17 @@ const App = () => {
 
 ## API
 
-| Prop        | Type      | Required | Default    | Description                                                                                              |
-| ----------- | --------- | -------- | ---------- | -------------------------------------------------------------------------------------------------------- |
-| `location`  | `object`  | yes      | `location` | `location` from `react-router-dom`, required                                                             |
-| `animation` | `string`  |          | `'slide'`  | Animation effect type, `'slide'`, `'vertical-slide'`, or `'rotate'`                                      |
-| `pathList`  | `array`   |          | `[]`       | Pre-defined `pathname` list, useful when enter a url, you want to "back" to some url (default "forward") |
-| `duration`  | `number`  |          | `200`      | `transition-duration` in `ms`                                                                            |
-| `timing`    | `string`  |          | `'ease'`   | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'`        |
-| `destroy`   | `boolean` |          | `true`     | If `false`, the passed page will still exits in dom, only invisible                                      |
+| Prop        | Type      | Required | Default   | Description                                                                                              |
+| ----------- | --------- | -------- | --------- | -------------------------------------------------------------------------------------------------------- |
+| `animation` | `string`  |          | `'slide'` | Animation effect type, `'slide'`, `'vertical-slide'`, or `'rotate'`                                      |
+| `pathList`  | `array`   |          | `[]`      | Pre-defined `pathname` list, useful when enter a url, you want to "back" to some url (default "forward") |
+| `duration`  | `number`  |          | `200`     | `transition-duration` in `ms`                                                                            |
+| `timing`    | `string`  |          | `'ease'`  | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'`        |
+| `destroy`   | `boolean` |          | `true`    | If `false`, prev page will still exits in dom, just invisible                                            |
 
 ## License
 
-[MIT License](https://github.com/nanxiaobei/react-slide-routes/blob/master/LICENSE) © [nanxiaobei](https://mrlee.me/)
+[MIT License](https://github.com/nanxiaobei/react-slide-routes/blob/main/LICENSE) © [nanxiaobei](https://lee.so/)
 
 ## Pitiless Ads
 
