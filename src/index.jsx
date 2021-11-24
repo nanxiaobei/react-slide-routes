@@ -1,8 +1,8 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import { useMemo, useRef, cloneElement, createElement, Children } from 'react';
+import { useEffect, useMemo, useRef, cloneElement, Children } from 'react';
 import t from 'prop-types';
-import { Switch } from 'react-router-dom';
+import { useLocation, Routes } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 const getCss = (duration, timing, direction) => css`
@@ -119,18 +119,18 @@ const getCss = (duration, timing, direction) => css`
   }
 `;
 
-const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy, children }) => {
-  const cssProps = useMemo(() => {
-    return destroy ? { timeout: duration } : { addEndListener() {} };
-  }, [destroy, duration]);
+const CACHE_KEY = '::slide::history::';
 
+const SlideRoutes = ({ animation, pathList, duration, timing, destroy, children }) => {
+  const location = useLocation();
   const { pathname } = location;
+
   const hasMount = useRef(false);
+  const pathQueue = useRef();
+  const SHOULD_UPDATE_CACHE = useRef(false);
+
   const prevPath = useRef();
   const direction = useRef('');
-
-  const selfList = useRef();
-  const selfKey = '::slide::history::';
 
   if (!hasMount.current) {
     // mount
@@ -139,14 +139,14 @@ const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy,
     if (pathList.length > 0) {
       prevPath.current = pathname;
     } else {
-      const cacheList = sessionStorage.getItem(selfKey);
+      const cacheList = sessionStorage.getItem(CACHE_KEY);
       if (!cacheList) {
-        selfList.current = [pathname];
         prevPath.current = pathname;
-        sessionStorage.setItem(selfKey, JSON.stringify(selfList.current));
+        pathQueue.current = [pathname];
+        SHOULD_UPDATE_CACHE.current = true;
       } else {
-        selfList.current = JSON.parse(cacheList);
-        prevPath.current = selfList.current[selfList.current.length - 1];
+        pathQueue.current = JSON.parse(cacheList);
+        prevPath.current = pathQueue.current[pathQueue.current.length - 1];
       }
     }
   } else {
@@ -157,35 +157,44 @@ const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy,
         const nextIndex = pathList.indexOf(pathname);
         direction.current = prevIndex < nextIndex ? 'forward' : 'back';
       } else {
-        const nextIndex = selfList.current.lastIndexOf(pathname);
+        const nextIndex = pathQueue.current.lastIndexOf(pathname);
 
         if (nextIndex === -1) {
           direction.current = 'forward';
-          selfList.current.push(pathname);
+          pathQueue.current.push(pathname);
         } else {
           direction.current = 'back';
-          selfList.current.length = nextIndex + 1;
+          pathQueue.current.length = nextIndex + 1;
         }
 
-        sessionStorage.setItem(selfKey, JSON.stringify(selfList.current));
+        SHOULD_UPDATE_CACHE.current = true;
       }
 
       prevPath.current = pathname;
     }
   }
 
+  const cssProps = useMemo(
+    () => (destroy ? { timeout: duration } : { addEndListener() {} }),
+    [destroy, duration]
+  );
+
+  useEffect(() => {
+    if (SHOULD_UPDATE_CACHE.current) {
+      SHOULD_UPDATE_CACHE.current = false;
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify(pathQueue.current));
+    }
+  });
+
   const routList = useMemo(() => {
     return Children.map(children, (child) => {
       if (!child) return child;
 
-      const { render, component, ...restProps } = child.props;
-      if (!render && !component) return child;
+      const { element, ...restProps } = child.props;
+      if (!element || element.props.replace === true) return child;
 
-      const element = render ? render() : createElement(component);
-      if (element.props.replace === true) return child;
-
-      const newRender = () => <div className="item">{element}</div>;
-      return { ...child, props: { ...restProps, render: newRender } };
+      const newElement = <div className="item">{element}</div>;
+      return { ...child, props: { ...restProps, element: newElement } };
     });
   }, [children]);
 
@@ -196,7 +205,7 @@ const SlideRoutes = ({ location, animation, pathList, duration, timing, destroy,
       css={getCss(duration, timing, direction.current)}
     >
       <CSSTransition key={pathname} {...cssProps}>
-        <Switch location={location}>{routList}</Switch>
+        <Routes location={location}>{routList}</Routes>
       </CSSTransition>
     </TransitionGroup>
   );
@@ -211,7 +220,6 @@ SlideRoutes.defaultProps = {
 };
 
 SlideRoutes.propTypes = {
-  location: t.object.isRequired,
   animation: t.oneOf(['slide', 'vertical-slide', 'rotate']),
   pathList: t.array,
   duration: t.number,
