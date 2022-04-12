@@ -121,7 +121,15 @@ const getCss = (duration, timing, direction) => css`
 
 const CACHE_KEY = '::slide::history::';
 
-const SlideRoutes = ({ animation, pathList, duration, timing, destroy, children }) => {
+const SlideRoutes = ({ animation, pathList, duration, timing, destroy, disabled, children }) => {
+  if (disabled) {
+    return (
+      <React.Fragment>
+        {children}
+      </React.Fragment>
+    )
+  }
+
   const location = useLocation();
   const { pathname } = location;
 
@@ -217,6 +225,7 @@ SlideRoutes.defaultProps = {
   duration: 200,
   timing: 'ease',
   destroy: true,
+  disabled: false
 };
 
 SlideRoutes.propTypes = {
@@ -225,6 +234,7 @@ SlideRoutes.propTypes = {
   duration: t.number,
   timing: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
   destroy: t.bool,
+  disabled: t.bool,
   children: t.node,
 };
 
