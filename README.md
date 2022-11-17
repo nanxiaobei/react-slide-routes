@@ -13,7 +13,7 @@ The easiest way to slide React routes
 
 React Router v6
 
-> For React Router v5, please use `react-slide-routes@1.1.0`
+> For React Router v5, please use [`react-slide-routes@1.1.0`](https://github.com/nanxiaobei/react-slide-routes/blob/367ff0dfa94c9ff3234fc55493c27e3a53996ccd/README.md) and note that the usage is different.
 
 ## Add
 
