@@ -14,6 +14,7 @@
   ],
   "main": "dist/react-slide-routes.cjs.js",
   "module": "dist/react-slide-routes.esm.js",
+  "typings": "src/index.d.ts",
   "repository": "https://github.com/nanxiaobei/react-slide-routes.git",
   "author": "nanxiaobei <nanxiaobei@gmail.com>",
   "license": "MIT",
