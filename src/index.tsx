@@ -122,11 +122,11 @@ const getCss = (duration: number, timing: string, direction: string) => css`
 const CACHE_KEY = '::slide::history::';
 
 export type SlideRoutesProps = {
-  animation: 'slide' | 'vertical-slide' | 'rotate';
-  pathList: string[];
-  duration: number;
-  timing: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'linear';
-  destroy: boolean;
+  animation?: 'slide' | 'vertical-slide' | 'rotate';
+  pathList?: string[];
+  duration?: number;
+  timing?: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'linear';
+  destroy?: boolean;
   children: ReactNode;
 };
 
