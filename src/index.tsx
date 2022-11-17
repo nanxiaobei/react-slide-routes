@@ -1,11 +1,16 @@
-/** @jsx jsx */
 import { css, jsx } from '@emotion/react';
-import { useEffect, useMemo, useRef, cloneElement, Children } from 'react';
+import { useEffect, useMemo, useRef, cloneElement, Children, ReactElement } from 'react';
 import t from 'prop-types';
 import { useLocation, Routes } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-const getCss = (duration, timing, direction) => css`
+type Direction = 'forward' | 'back'
+
+const getCss = (
+  duration: SlideRoutesProps['duration'],
+  timing: SlideRoutesProps['timing'],
+  direction: Direction,
+) => css`
   display: grid;
 
   .item {
@@ -121,16 +126,16 @@ const getCss = (duration, timing, direction) => css`
 
 const CACHE_KEY = '::slide::history::';
 
-const SlideRoutes = ({ animation, pathList, duration, timing, destroy, children }) => {
+const SlideRoutes = ({ animation, pathList, duration, timing, destroy, children }: SlideRoutesProps) => {
   const location = useLocation();
   const { pathname } = location;
 
   const hasMount = useRef(false);
-  const pathQueue = useRef();
+  const pathQueue = useRef<string[]>();
   const SHOULD_UPDATE_CACHE = useRef(false);
 
-  const prevPath = useRef();
-  const direction = useRef('');
+  const prevPath = useRef<string>();
+  const direction = useRef<Direction>();
 
   if (!hasMount.current) {
     // mount
@@ -146,25 +151,25 @@ const SlideRoutes = ({ animation, pathList, duration, timing, destroy, children 
         SHOULD_UPDATE_CACHE.current = true;
       } else {
         pathQueue.current = JSON.parse(cacheList);
-        prevPath.current = pathQueue.current[pathQueue.current.length - 1];
+        prevPath.current = pathQueue.current![pathQueue.current!.length - 1];
       }
     }
   } else {
     // update
     if (prevPath.current !== pathname) {
       if (pathList.length > 0) {
-        const prevIndex = pathList.indexOf(prevPath.current);
+        const prevIndex = pathList.indexOf(prevPath.current!);
         const nextIndex = pathList.indexOf(pathname);
         direction.current = prevIndex < nextIndex ? 'forward' : 'back';
       } else {
-        const nextIndex = pathQueue.current.lastIndexOf(pathname);
+        const nextIndex = pathQueue.current!.lastIndexOf(pathname);
 
         if (nextIndex === -1) {
           direction.current = 'forward';
-          pathQueue.current.push(pathname);
+          pathQueue.current!.push(pathname);
         } else {
           direction.current = 'back';
-          pathQueue.current.length = nextIndex + 1;
+          pathQueue.current!.length = nextIndex + 1;
         }
 
         SHOULD_UPDATE_CACHE.current = true;
@@ -186,7 +191,7 @@ const SlideRoutes = ({ animation, pathList, duration, timing, destroy, children 
     }
   });
 
-  const routList = useMemo(() => {
+  const routeList = useMemo(() => {
     return Children.map(children, (child) => {
       if (!child) return child;
 
@@ -201,11 +206,11 @@ const SlideRoutes = ({ animation, pathList, duration, timing, destroy, children 
   return (
     <TransitionGroup
       className={`slide-routes ${animation}`}
-      childFactory={(child) => cloneElement(child, { classNames: direction.current })}
-      css={getCss(duration, timing, direction.current)}
+      childFactory={(child: ReactElement) => cloneElement(child, { classNames: direction.current })}
+      css={getCss(duration, timing, direction.current!)}
     >
       <CSSTransition key={pathname} {...cssProps}>
-        <Routes location={location}>{routList}</Routes>
+        <Routes location={location}>{routeList}</Routes>
       </CSSTransition>
     </TransitionGroup>
   );
@@ -217,15 +222,24 @@ SlideRoutes.defaultProps = {
   duration: 200,
   timing: 'ease',
   destroy: true,
-};
+} as const;
 
 SlideRoutes.propTypes = {
-  animation: t.oneOf(['slide', 'vertical-slide', 'rotate']),
-  pathList: t.array,
+  animation: t.oneOf(['slide', 'vertical-slide', 'rotate'] as SlideRoutesProps['animation'][]),
+  pathList: t.arrayOf(t.string.isRequired),
   duration: t.number,
-  timing: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
+  timing: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear'] as SlideRoutesProps['timing'][]),
   destroy: t.bool,
-  children: t.node,
+  children: t.element,
+} as const;
+
+export interface SlideRoutesProps {
+  animation: 'slide' | 'vertical-slide' | 'rotate',
+  pathList: string[],
+  duration: number,
+  timing: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'linear',
+  destroy: boolean,
+  children: ReactElement[],
 };
 
 export default SlideRoutes;

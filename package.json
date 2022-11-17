@@ -14,7 +14,7 @@
   ],
   "main": "dist/react-slide-routes.cjs.js",
   "module": "dist/react-slide-routes.esm.js",
-  "typings": "src/index.d.ts",
+  "typings": "dist/src/index.d.ts",
   "repository": "https://github.com/nanxiaobei/react-slide-routes.git",
   "author": "nanxiaobei <nanxiaobei@gmail.com>",
   "license": "MIT",
@@ -23,11 +23,11 @@
     "src"
   ],
   "scripts": {
-    "build": "rimraf dist && rollup -c"
+    "build": "rimraf dist && rollup -c rollup.config.ts --configPlugin typescript"
   },
   "dependencies": {
     "@emotion/react": "^11.6.0",
-    "react-transition-group": "^4.4.2"
+    "react-transition-group": "^4.4.5"
   },
   "peerDependencies": {
     "prop-types": "^15.7.2",
@@ -37,15 +37,20 @@
     "react-router-dom": ">=6.0.0"
   },
   "devDependencies": {
+    "@rollup/plugin-babel": "^6.0.2",
+    "@rollup/plugin-typescript": "^9.0.2",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "@types/react-transition-group": "^4.4.5",
     "eslint": "^8.3.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-react-app": "^7.0.0-next.91",
-    "eslint-plugin-flowtype": "^8.0.3",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.4.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "rollup": "^2.60.1",
-    "rollup-plugin-babel": "^4.4.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.4.3",
+    "rollup": "^3.3.0",
+    "typescript": "^4.9.3"
   }
 }
