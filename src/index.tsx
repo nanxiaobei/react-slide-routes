@@ -1,11 +1,11 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react';
 import { useEffect, useMemo, useRef, cloneElement, Children } from 'react';
-import t from 'prop-types';
+import type { ReactElement, ReactNode } from 'react';
 import { useLocation, Routes } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-const getCss = (duration, timing, direction) => css`
+const getCss = (duration: number, timing: string, direction: string) => css`
   display: grid;
 
   .item {
@@ -121,15 +121,33 @@ const getCss = (duration, timing, direction) => css`
 
 const CACHE_KEY = '::slide::history::';
 
-const SlideRoutes = ({ animation, pathList, duration, timing, destroy, children }) => {
+export type SlideRoutesProps = {
+  animation: 'slide' | 'vertical-slide' | 'rotate';
+  pathList: string[];
+  duration: number;
+  timing: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'linear';
+  destroy: boolean;
+  children: ReactNode;
+};
+
+const SlideRoutes = (props: SlideRoutesProps) => {
+  const {
+    animation = 'slide',
+    pathList = [],
+    duration = 200,
+    timing = 'ease',
+    destroy = true,
+    children,
+  } = props;
+
   const location = useLocation();
   const { pathname } = location;
 
   const hasMount = useRef(false);
-  const pathQueue = useRef();
+  const pathQueue = useRef<string[]>([]);
   const SHOULD_UPDATE_CACHE = useRef(false);
 
-  const prevPath = useRef();
+  const prevPath = useRef<string>('');
   const direction = useRef('');
 
   if (!hasMount.current) {
@@ -188,20 +206,27 @@ const SlideRoutes = ({ animation, pathList, duration, timing, destroy, children 
 
   const routList = useMemo(() => {
     return Children.map(children, (child) => {
-      if (!child) return child;
+      if (!child) {
+        return child;
+      }
 
-      const { element, ...restProps } = child.props;
-      if (!element || element.props.replace === true) return child;
+      const newChild = child as ReactElement;
+      const { element, ...restProps } = newChild.props;
+      if (!element || element.props.replace === true) {
+        return child;
+      }
 
       const newElement = <div className="item">{element}</div>;
-      return { ...child, props: { ...restProps, element: newElement } };
+      return { ...newChild, props: { ...restProps, element: newElement } };
     });
   }, [children]);
 
   return (
     <TransitionGroup
       className={`slide-routes ${animation}`}
-      childFactory={(child) => cloneElement(child, { classNames: direction.current })}
+      childFactory={(child) =>
+        cloneElement(child, { classNames: direction.current })
+      }
       css={getCss(duration, timing, direction.current)}
     >
       <CSSTransition key={pathname} {...cssProps}>
@@ -209,23 +234,6 @@ const SlideRoutes = ({ animation, pathList, duration, timing, destroy, children 
       </CSSTransition>
     </TransitionGroup>
   );
-};
-
-SlideRoutes.defaultProps = {
-  animation: 'slide',
-  pathList: [],
-  duration: 200,
-  timing: 'ease',
-  destroy: true,
-};
-
-SlideRoutes.propTypes = {
-  animation: t.oneOf(['slide', 'vertical-slide', 'rotate']),
-  pathList: t.array,
-  duration: t.number,
-  timing: t.oneOf(['ease', 'ease-in', 'ease-out', 'ease-in-out', 'linear']),
-  destroy: t.bool,
-  children: t.node,
 };
 
 export default SlideRoutes;
