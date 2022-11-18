@@ -60,8 +60,8 @@ const App = () => (
 
 [MIT License](https://github.com/nanxiaobei/react-slide-routes/blob/main/LICENSE) © [nanxiaobei](https://lee.so/)
 
-## Pitiless Ads
+## FUTAKE
 
 If you use WeChat, please try "**FUTAKE**". It's a WeChat mini app for your inspiration moments. 🌈
 
-![FUTAKE](https://s3.jpg.cm/2021/04/22/TDQuS.png)
+![FUTAKE](https://s3.bmp.ovh/imgs/2022/07/21/452dd47aeb790abd.png)
