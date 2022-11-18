@@ -23,8 +23,10 @@
     "src"
   ],
   "scripts": {
+    "start": "concurrently npm:watch npm:serve",
     "build": "rimraf dist && rollup -c rollup.config.ts --configPlugin typescript",
-    "watch": "yarn build -w"
+    "watch": "yarn build -w",
+    "serve": "serve -s"
   },
   "dependencies": {
     "@emotion/react": "^11.6.0",
@@ -43,6 +45,7 @@
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.9",
     "@types/react-transition-group": "^4.4.5",
+    "concurrently": "^7.5.0",
     "eslint": "^8.3.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-config-react-app": "^7.0.0-next.91",
@@ -52,6 +55,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.4.3",
     "rollup": "^3.3.0",
+    "serve": "^14.1.2",
     "typescript": "^4.9.3"
   }
 }
