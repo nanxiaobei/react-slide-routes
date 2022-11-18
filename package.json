@@ -26,7 +26,8 @@
     "start": "concurrently npm:watch npm:serve",
     "build": "rimraf dist && rollup -c rollup.config.ts --configPlugin typescript",
     "watch": "yarn build -w",
-    "serve": "serve -s"
+    "serve": "serve -s",
+    "prepack": "yarn build"
   },
   "dependencies": {
     "@emotion/react": "^11.6.0",
