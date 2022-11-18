@@ -26,6 +26,7 @@
     "isolatedModules": true,
 
     "jsx": "react-jsx",
+    "jsxImportSource": "@emotion/react",
     "target": "es6"
   },
   "exclude": ["node_modules", "dist"]
