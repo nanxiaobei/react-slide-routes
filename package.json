@@ -23,7 +23,8 @@
     "src"
   ],
   "scripts": {
-    "build": "rimraf dist && rollup -c rollup.config.ts --configPlugin typescript"
+    "build": "rimraf dist && rollup -c rollup.config.ts --configPlugin typescript",
+    "watch": "yarn build -w"
   },
   "dependencies": {
     "@emotion/react": "^11.6.0",

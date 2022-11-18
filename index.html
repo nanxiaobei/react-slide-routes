@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <title>Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script type="importmap">
+    {
+      "imports": {
+        "@emotion/react": "https://esm.sh/@emotion/react@11.10.5?dev",
+        "react": "https://esm.sh/react@18.2.0?dev",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client?dev",
+        "prop-types": "https://esm.sh/prop-types@15.8.1?dev",
+        "react-router-dom": "https://esm.sh/react-router-dom@6.4.3?dev",
+        "react-transition-group": "https://esm.sh/react-transition-group@4.4.5?dev",
+        "react-slide-routes": "./dist/react-slide-routes.esm.js?dev"
+      }
+    }
+  </script>
+  <script type="module">
+    import { createElement as e } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { BrowserRouter, NavLink, Route } from 'react-router-dom';
+    import SlideRoutes from 'react-slide-routes';
+
+    const Home = () => e('div', {className: 'card home'}, 'Home');
+    const About = () => e('div', {className: 'card about'}, 'About');
+    const Contact = () => e('div', {className: 'card contact'}, 'Contact');
+    
+    const links = e('nav', null, e('ul', null, [
+      e('li', null, e(NavLink, {to: '/about'}, 'About')),
+      e('li', null, e(NavLink, {to: '/'}, 'Home')),
+      e('li', null, e(NavLink, {to: '/contact'}, 'Contact')),
+    ]));
+    
+    const router = e(SlideRoutes, null, [
+      e(Route, {path: 'about', element: e(About)}),
+      e(Route, {index: true, element: e(Home)}),
+      e(Route, {path: 'contact', element: e(Contact)}),
+    ]);
+    
+    const app = [links, router];
+  
+    window.addEventListener('DOMContentLoaded', (event) => {
+      const root = createRoot(document.querySelector('main'));
+      root.render(e(BrowserRouter, null, app));
+    });
+  </script>
+  <style>
+    body {
+      margin: 40px auto;
+      max-width: 360px;
+      font-size: 16px;
+    }
+
+    /* nav */
+    nav > ul {
+      display: grid;
+      grid: auto / auto-flow;
+      padding: 3px;
+      margin-bottom: 24px;
+      background: #eee;
+      border-radius: 10px;
+    }
+    nav > ul > li {
+      list-style-type: none;
+    }
+    nav > ul > li > a {
+      display: block;
+      color: #000;
+      text-align: center;
+      line-height: 32px;
+      text-decoration: none;
+    }
+    nav > ul > li > a.active {
+      background: #fff;
+      font-weight: 500;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* slide */
+    .slide-routes {
+      border-radius: 10px;
+    }
+    .card {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 560px;
+      color: #fff;
+      font-size: 64px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .home {
+      background: rgba(255, 100, 0, 0.8);
+    }
+    .about {
+      background: rgba(0, 150, 255, 0.8);
+    }
+    .contact {
+      background: rgba(100, 0, 255, 0.8);
+    }
+  </style>
+</head>
+<body>
+  <main></main>
+</body>
+</html>

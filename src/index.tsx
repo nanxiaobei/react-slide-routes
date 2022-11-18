@@ -1,7 +1,7 @@
 import { css, jsx } from '@emotion/react';
-import { useMemo, useRef, cloneElement, Children, ReactElement } from 'react';
+import { useMemo, useRef, cloneElement, Children, ReactElement, isValidElement } from 'react';
 import t from 'prop-types';
-import { useLocation, useRoutes, createRoutesFromChildren, matchRoutes, RouteObject } from 'react-router-dom';
+import { useLocation, useRoutes, createRoutesFromChildren, matchRoutes, RouteObject, RouteProps } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 type Direction = 'forward' | 'back'
@@ -142,7 +142,7 @@ const SlideRoutes = ({ animation, duration, timing, destroy, children }: SlideRo
       if (!child) return child;
 
       const { element, ...restProps } = child.props;
-      if (!element || element.props.replace === true) return child;
+      if (!element || (isValidElement(element) && element.props.replace === true)) return child;
 
       const newElement = <div className="item">{element}</div>;
       return { ...child, props: { ...restProps, element: newElement } };
@@ -198,7 +198,7 @@ export interface SlideRoutesProps {
   duration: number,
   timing: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'linear',
   destroy: boolean,
-  children: ReactElement[],
+  children: ReactElement<RouteProps>[],
 };
 
 export default SlideRoutes;
