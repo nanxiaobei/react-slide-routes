@@ -1,5 +1,4 @@
-/** @jsx jsx */
-import { css, jsx } from '@emotion/react';
+import { css } from '@emotion/react';
 import { useEffect, useMemo, useRef, cloneElement, Children } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import { useLocation, Routes } from 'react-router-dom';
