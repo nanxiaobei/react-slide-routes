@@ -25,24 +25,23 @@
   "scripts": {
     "build": "rm -rf dist && rollup -c --configPlugin @rollup/plugin-typescript"
   },
-  "dependencies": {
-    "@emotion/react": "^11.10.5",
-    "react-transition-group": "^4.4.5",
-    "tslib": "^2.4.1"
-  },
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0",
     "react-router": ">=6.0.0",
     "react-router-dom": ">=6.0.0"
   },
+  "dependencies": {
+    "@emotion/react": "^11.10.5",
+    "react-transition-group": "^4.4.5",
+    "tslib": "^2.4.1"
+  },
   "devDependencies": {
     "@rollup/plugin-typescript": "^9.0.2",
+    "@types/node": "^18.11.9",
     "@types/react": "^18.0.25",
     "@types/react-transition-group": "^4.4.5",
-    "@typescript-eslint/eslint-plugin": "^5.43.0",
-    "@typescript-eslint/parser": "^5.43.0",
-    "eslint": "^8.27.0",
+    "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-react-app": "^7.0.1",
     "prettier": "^2.7.1",
