@@ -23,6 +23,7 @@
     "src"
   ],
   "scripts": {
+    "watch": "rm -rf dist && rollup -wc --configPlugin @rollup/plugin-typescript",
     "build": "rm -rf dist && rollup -c --configPlugin @rollup/plugin-typescript"
   },
   "peerDependencies": {
@@ -40,12 +41,14 @@
     "@rollup/plugin-typescript": "^9.0.2",
     "@types/node": "^18.11.9",
     "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
     "@types/react-transition-group": "^4.4.5",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-react-app": "^7.0.1",
     "prettier": "^2.7.1",
     "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-router-dom": "^6.4.3",
     "rollup": "^3.3.0",
     "rollup-plugin-dts": "^5.0.0",
