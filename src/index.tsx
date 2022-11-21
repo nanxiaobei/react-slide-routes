@@ -1,10 +1,15 @@
 import { css } from '@emotion/react';
-import { useEffect, useMemo, useRef, cloneElement, Children } from 'react';
-import type { ReactElement, ReactNode } from 'react';
-import { useLocation, Routes } from 'react-router-dom';
+import { useMemo, useRef, cloneElement, Children, isValidElement, useContext } from 'react';
+import type { ReactElement } from 'react';
+import { useLocation, useRoutes, createRoutesFromChildren, matchRoutes, UNSAFE_RouteContext } from 'react-router-dom';
+import type { RouteObject, RouteProps, NavigateProps } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-const getCss = (duration: number, timing: string, direction: string) => css`
+type Direction = 'forward' | 'back' | null;
+
+const sign2direction = new Map<number, Direction>([[-1, 'back'], [0, null], [1, 'forward']]);
+
+const getCss = (duration: number, timing: string, direction: Direction) => css`
   display: grid;
 
   .item {
@@ -118,21 +123,36 @@ const getCss = (duration: number, timing: string, direction: string) => css`
   }
 `;
 
-const CACHE_KEY = '::slide::history::';
+// yoinked from useRoutes’ code:
+// https://github.com/remix-run/react-router/blob/f3d3e05ec00c6950720930beaf74fecbaf9dc5b6/packages/react-router/lib/hooks.tsx#L302
+const useRelPath = (pathname: string = '') => {
+  const { matches: parentMatches } = useContext(UNSAFE_RouteContext);
+  const routeMatch = parentMatches[parentMatches.length - 1];
+  const parentPathnameBase = routeMatch ? routeMatch.pathnameBase : '/';
+  return parentPathnameBase === '/'
+    ? pathname
+    : pathname.slice(parentPathnameBase.length) || '/';
+}
+
+const findRouteIndex = (routes: RouteObject[], pathname: string): number => {
+  const matches = matchRoutes(routes, pathname);
+  if (matches === null) throw new Error(`Route ${pathname} does not match`)
+  return routes.findIndex((route) => matches.some((match) => route === match.route))
+}
+
+type ChildElement = ReactElement<RouteProps> | ReactElement<NavigateProps>;
 
 export type SlideRoutesProps = {
   animation?: 'slide' | 'vertical-slide' | 'rotate';
-  pathList?: string[];
   duration?: number;
   timing?: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'linear';
   destroy?: boolean;
-  children: ReactNode;
+  children: ChildElement | (ChildElement | undefined | null)[];
 };
 
 const SlideRoutes = (props: SlideRoutesProps) => {
   const {
     animation = 'slide',
-    pathList = [],
     duration = 200,
     timing = 'ease',
     destroy = true,
@@ -140,85 +160,42 @@ const SlideRoutes = (props: SlideRoutesProps) => {
   } = props;
 
   const location = useLocation();
-  const { pathname } = location;
+  const relPath = useRelPath(location.pathname);
 
-  const hasMount = useRef(false);
-  const pathQueue = useRef<string[]>([]);
-  const SHOULD_UPDATE_CACHE = useRef(false);
-
-  const prevPath = useRef<string>('');
-  const direction = useRef('');
-
-  if (!hasMount.current) {
-    // mount
-    hasMount.current = true;
-
-    if (pathList.length > 0) {
-      prevPath.current = pathname;
-    } else {
-      const cacheList = sessionStorage.getItem(CACHE_KEY);
-      if (!cacheList) {
-        prevPath.current = pathname;
-        pathQueue.current = [pathname];
-        SHOULD_UPDATE_CACHE.current = true;
-      } else {
-        pathQueue.current = JSON.parse(cacheList);
-        prevPath.current = pathQueue.current[pathQueue.current.length - 1];
-      }
-    }
-  } else {
-    // update
-    if (prevPath.current !== pathname) {
-      if (pathList.length > 0) {
-        const prevIndex = pathList.indexOf(prevPath.current);
-        const nextIndex = pathList.indexOf(pathname);
-        direction.current = prevIndex < nextIndex ? 'forward' : 'back';
-      } else {
-        const nextIndex = pathQueue.current.lastIndexOf(pathname);
-
-        if (nextIndex === -1) {
-          direction.current = 'forward';
-          pathQueue.current.push(pathname);
-        } else {
-          direction.current = 'back';
-          pathQueue.current.length = nextIndex + 1;
-        }
-
-        SHOULD_UPDATE_CACHE.current = true;
-      }
-
-      prevPath.current = pathname;
-    }
-  }
+  const prevRelPath = useRef<string | null>(null);
+  const direction = useRef<Direction>(null);
 
   const cssProps = useMemo(
     () => (destroy ? { timeout: duration } : { addEndListener() {} }),
     [destroy, duration]
   );
 
-  useEffect(() => {
-    if (SHOULD_UPDATE_CACHE.current) {
-      SHOULD_UPDATE_CACHE.current = false;
-      sessionStorage.setItem(CACHE_KEY, JSON.stringify(pathQueue.current));
-    }
-  });
-
-  const routList = useMemo(() => {
+  const routeList = useMemo(() => {
     return Children.map(children, (child) => {
-      if (!child) {
+      if (!child || !isValidElement(child)) {
         return child;
       }
-
-      const newChild = child as ReactElement;
-      const { element, ...restProps } = newChild.props;
-      if (!element || element.props.replace === true) {
+      if ('replace' in child.props && child.props.replace === true) {
         return child;
       }
-
+      const { element, ...restProps } = child.props as RouteProps;
+      if (!element) {
+        return child;
+      }
       const newElement = <div className="item">{element}</div>;
-      return { ...newChild, props: { ...restProps, element: newElement } };
+      return { ...child, props: { ...restProps, element: newElement } };
     });
   }, [children]);
+  
+  const routes = useMemo(() => createRoutesFromChildren(routeList), [routeList]);
+  const routesElement = useRoutes(routes, location);
+
+  if (prevRelPath.current && prevRelPath.current !== relPath) {
+    const prevIndex = findRouteIndex(routes, prevRelPath.current);
+    const nextIndex = findRouteIndex(routes, relPath);
+    direction.current = sign2direction.get(Math.sign(nextIndex - prevIndex))!;
+  }
+  prevRelPath.current = relPath;
 
   return (
     <TransitionGroup
@@ -228,8 +205,8 @@ const SlideRoutes = (props: SlideRoutesProps) => {
       }
       css={getCss(duration, timing, direction.current)}
     >
-      <CSSTransition key={pathname} {...cssProps}>
-        <Routes location={location}>{routList}</Routes>
+      <CSSTransition key={relPath} {...cssProps}>
+        {routesElement}
       </CSSTransition>
     </TransitionGroup>
   );
