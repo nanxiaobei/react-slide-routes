@@ -5,10 +5,16 @@ import { useLocation, useRoutes, createRoutesFromChildren, matchRoutes, UNSAFE_R
 import type { RouteObject, RouteProps, NavigateProps } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-type Direction = 'forward' | 'back' | null;
+type Direction = 'forward' | 'back' | 'undirected';
 
-const sign2direction = new Map<number, Direction>([[-1, 'back'], [0, null], [1, 'forward']]);
-
+const getDirection = (prevIndex: number, nextIndex: number): Direction => {
+  switch (Math.sign(nextIndex - prevIndex) as (-1|0|1)) {
+    case -1: return 'back';
+    case 0: return 'undirected';
+    case 1: return 'forward';
+  }
+}
+  
 const getCss = (duration: number, timing: string, direction: Direction) => css`
   display: grid;
 
@@ -163,7 +169,7 @@ const SlideRoutes = (props: SlideRoutesProps) => {
   const relPath = useRelPath(location.pathname);
 
   const prevRelPath = useRef<string | null>(null);
-  const direction = useRef<Direction>(null);
+  const direction = useRef<Direction>('undirected');
 
   const cssProps = useMemo(
     () => (destroy ? { timeout: duration } : { addEndListener() {} }),
@@ -193,7 +199,7 @@ const SlideRoutes = (props: SlideRoutesProps) => {
   if (prevRelPath.current && prevRelPath.current !== relPath) {
     const prevIndex = findRouteIndex(routes, prevRelPath.current);
     const nextIndex = findRouteIndex(routes, relPath);
-    direction.current = sign2direction.get(Math.sign(nextIndex - prevIndex))!;
+    direction.current = getDirection(prevIndex, nextIndex);
   }
   prevRelPath.current = relPath;
 
