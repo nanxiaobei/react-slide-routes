@@ -156,6 +156,7 @@ const isRouteElement = (e: ReactNode): e is RouteElement => isValidElement(e) &&
 
 export type SlideRoutesProps = {
   animation?: 'slide' | 'vertical-slide' | 'rotate';
+  compare?(a: RouteObject, b: RouteObject): -1|0|1;
   duration?: number;
   timing?: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'linear';
   destroy?: boolean;
@@ -165,6 +166,7 @@ export type SlideRoutesProps = {
 const SlideRoutes = (props: SlideRoutesProps) => {
   const {
     animation = 'slide',
+    compare = null,
     duration = 200,
     timing = 'ease',
     destroy = true,
@@ -197,9 +199,12 @@ const SlideRoutes = (props: SlideRoutesProps) => {
     return { ...child, props: { ...restProps, element: newElement } };
   })!;
   const routeObjects = createRoutesFromElements(routeElements);
-  const routes: RouteRef[] = routeObjects.map((route, i) => ({ route, nodeRef: nodeRefs[i] }));
-
   const routesElement = useRoutes(routeObjects, location);
+
+  const routes = routeObjects.map<RouteRef>((route, i) => ({ route, nodeRef: nodeRefs[i] }));
+  if (compare) {
+    routes.sort((a, b) => compare(a.route, b.route));
+  }
 
   const next = findRoute(routes, relPath);
   if (prevRelPath.current && prevRelPath.current !== relPath) {
