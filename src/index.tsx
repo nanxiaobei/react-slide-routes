@@ -1,7 +1,7 @@
 import { css } from '@emotion/react';
-import { useMemo, useRef, cloneElement, Children, isValidElement, useContext, createRef, RefObject } from 'react';
+import { useMemo, useRef, cloneElement, useContext, RefObject, Children, createRef, isValidElement, ReactNode } from 'react';
 import type { ReactElement } from 'react';
-import { useLocation, useRoutes, createRoutesFromElements, matchRoutes, UNSAFE_RouteContext } from 'react-router-dom';
+import { useLocation, useRoutes, createRoutesFromElements, matchRoutes, UNSAFE_RouteContext, Route, Navigate } from 'react-router-dom';
 import type { RouteObject, RouteProps, NavigateProps } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
@@ -149,7 +149,10 @@ const findRoute = (routes: RouteRef[], pathname: string) => {
   return { index, nodeRef: routes[index].nodeRef };
 }
 
-type ChildElement = ReactElement<RouteProps> | ReactElement<NavigateProps>;
+type RouteElement = ReactElement<RouteProps, typeof Route>;
+type NavigateElement = ReactElement<NavigateProps, typeof Navigate>;
+type ChildElement = RouteElement | NavigateElement;
+const isRouteElement = (e: ReactNode): e is RouteElement => isValidElement(e) && e.type === Route
 
 export type SlideRoutesProps = {
   animation?: 'slide' | 'vertical-slide' | 'rotate';
@@ -181,13 +184,10 @@ const SlideRoutes = (props: SlideRoutesProps) => {
 
   const nodeRefs: RefObject<HTMLDivElement>[] = [];
   const routeElements = Children.map(children, (child) => {
-    if (!child || !isValidElement(child)) {
+    if (!isRouteElement(child)) {
       return child;
     }
-    if ('replace' in child.props && child.props.replace === true) {
-      return child;
-    }
-    const { element, ...restProps } = child.props as RouteProps;
+    const { element, ...restProps } = child.props;
     if (!element) {
       return child;
     }
