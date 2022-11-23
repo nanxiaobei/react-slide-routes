@@ -14,6 +14,36 @@ const getDirection = (prevIndex: number, nextIndex: number): Direction => {
     case 1: return 'forward';
   }
 }
+
+const cssTransitions = (cssFunc: string, max: string) => `
+  // back
+  & > .back-enter {
+    transform: ${cssFunc}(-${max});
+  }
+  & > .back-enter-active {
+    transform: ${cssFunc}(0);
+  }
+  & > .back-exit {
+    transform: ${cssFunc}(0);
+  }
+  & > .back-exit-active {
+    transform: ${cssFunc}(${max});
+  }
+
+  // forward
+  & > .forward-enter {
+    transform: ${cssFunc}(${max});
+  }
+  & > .forward-enter-active {
+    transform: ${cssFunc}(0);
+  }
+  & > .forward-exit {
+    transform: ${cssFunc}(0);
+  }
+  & > .forward-exit-active {
+    transform: ${cssFunc}(-${max});
+  }
+`;
   
 const getCss = (duration: number, timing: string, direction: Direction) => css`
   display: grid;
@@ -30,102 +60,20 @@ const getCss = (duration: number, timing: string, direction: Direction) => css`
 
   &.slide {
     overflow: hidden;
-
-    // back
-    & > .back-enter {
-      transform: translateX(-100%);
-    }
-    & > .back-enter-active {
-      transform: translateX(0);
-    }
-    & > .back-exit {
-      transform: translateX(0);
-    }
-    & > .back-exit-active {
-      transform: translateX(100%);
-    }
-
-    // forward
-    & > .forward-enter {
-      transform: translateX(100%);
-    }
-    & > .forward-enter-active {
-      transform: translateX(0);
-    }
-    & > .forward-exit {
-      transform: translateX(0);
-    }
-    & > .forward-exit-active {
-      transform: translateX(-100%);
-    }
+    ${cssTransitions('translateX', '100%')}
   }
 
   &.vertical-slide {
     overflow: hidden;
-
-    // back
-    & > .back-enter {
-      transform: translateY(-100%);
-    }
-    & > .back-enter-active {
-      transform: translateY(0);
-    }
-    & > .back-exit {
-      transform: translateY(0);
-    }
-    & > .back-exit-active {
-      transform: translateY(100%);
-    }
-
-    // forward
-    & > .forward-enter {
-      transform: translateY(100%);
-    }
-    & > .forward-enter-active {
-      transform: translateY(0);
-    }
-    & > .forward-exit {
-      transform: translateY(0);
-    }
-    & > .forward-exit-active {
-      transform: translateY(-100%);
-    }
+    ${cssTransitions('translateY', '100%')}
   }
 
   &.rotate {
     perspective: 2000px;
-
     & > .item {
       backface-visibility: hidden;
     }
-
-    // back
-    & > .back-enter {
-      transform: rotateY(-180deg);
-    }
-    & > .back-enter-active {
-      transform: rotateY(0);
-    }
-    & > .back-exit {
-      transform: rotateY(0);
-    }
-    & > .back-exit-active {
-      transform: rotateY(180deg);
-    }
-
-    // forward
-    & > .forward-enter {
-      transform: rotateY(180deg);
-    }
-    & > .forward-enter-active {
-      transform: rotateY(0);
-    }
-    & > .forward-exit {
-      transform: rotateY(0);
-    }
-    & > .forward-exit-active {
-      transform: rotateY(-180deg);
-    }
+    ${cssTransitions('rotateY', '180deg')}
   }
 `;
 
@@ -152,7 +100,7 @@ const findRoute = (routes: RouteRef[], pathname: string) => {
 type RouteElement = ReactElement<RouteProps, typeof Route>;
 type NavigateElement = ReactElement<NavigateProps, typeof Navigate>;
 type ChildElement = RouteElement | NavigateElement;
-const isRouteElement = (e: ReactNode): e is RouteElement => isValidElement(e) && e.type === Route
+const isRouteElement = (e: ReactNode): e is RouteElement => isValidElement(e) && e.type === Route;
 
 export type SlideRoutesProps = {
   animation?: 'slide' | 'vertical-slide' | 'rotate';
