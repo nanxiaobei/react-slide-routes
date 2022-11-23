@@ -18,7 +18,7 @@ const getDirection = (prevIndex: number, nextIndex: number): Direction => {
 const getCss = (duration: number, timing: string, direction: Direction) => css`
   display: grid;
 
-  .item {
+  & > .item {
     grid-area: 1 / 1 / 2 / 2;
 
     &:not(:only-child) {
@@ -32,30 +32,30 @@ const getCss = (duration: number, timing: string, direction: Direction) => css`
     overflow: hidden;
 
     // back
-    .back-enter {
+    & > .back-enter {
       transform: translateX(-100%);
     }
-    .back-enter-active {
+    & > .back-enter-active {
       transform: translateX(0);
     }
-    .back-exit {
+    & > .back-exit {
       transform: translateX(0);
     }
-    .back-exit-active {
+    & > .back-exit-active {
       transform: translateX(100%);
     }
 
     // forward
-    .forward-enter {
+    & > .forward-enter {
       transform: translateX(100%);
     }
-    .forward-enter-active {
+    & > .forward-enter-active {
       transform: translateX(0);
     }
-    .forward-exit {
+    & > .forward-exit {
       transform: translateX(0);
     }
-    .forward-exit-active {
+    & > .forward-exit-active {
       transform: translateX(-100%);
     }
   }
@@ -64,30 +64,30 @@ const getCss = (duration: number, timing: string, direction: Direction) => css`
     overflow: hidden;
 
     // back
-    .back-enter {
+    & > .back-enter {
       transform: translateY(-100%);
     }
-    .back-enter-active {
+    & > .back-enter-active {
       transform: translateY(0);
     }
-    .back-exit {
+    & > .back-exit {
       transform: translateY(0);
     }
-    .back-exit-active {
+    & > .back-exit-active {
       transform: translateY(100%);
     }
 
     // forward
-    .forward-enter {
+    & > .forward-enter {
       transform: translateY(100%);
     }
-    .forward-enter-active {
+    & > .forward-enter-active {
       transform: translateY(0);
     }
-    .forward-exit {
+    & > .forward-exit {
       transform: translateY(0);
     }
-    .forward-exit-active {
+    & > .forward-exit-active {
       transform: translateY(-100%);
     }
   }
@@ -95,35 +95,35 @@ const getCss = (duration: number, timing: string, direction: Direction) => css`
   &.rotate {
     perspective: 2000px;
 
-    .item {
+    & > .item {
       backface-visibility: hidden;
     }
 
     // back
-    .back-enter {
+    & > .back-enter {
       transform: rotateY(-180deg);
     }
-    .back-enter-active {
+    & > .back-enter-active {
       transform: rotateY(0);
     }
-    .back-exit {
+    & > .back-exit {
       transform: rotateY(0);
     }
-    .back-exit-active {
+    & > .back-exit-active {
       transform: rotateY(180deg);
     }
 
     // forward
-    .forward-enter {
+    & > .forward-enter {
       transform: rotateY(180deg);
     }
-    .forward-enter-active {
+    & > .forward-enter-active {
       transform: rotateY(0);
     }
-    .forward-exit {
+    & > .forward-exit {
       transform: rotateY(0);
     }
-    .forward-exit-active {
+    & > .forward-exit-active {
       transform: rotateY(-180deg);
     }
   }
@@ -179,29 +179,27 @@ const SlideRoutes = (props: SlideRoutesProps) => {
     [destroy, duration]
   );
 
-  const routes: RouteRef[] = useMemo(() => {
-    const nodeRefs: RefObject<HTMLDivElement>[] = [];
-    const routeElements = Children.map(children, (child) => {
-      if (!child || !isValidElement(child)) {
-        return child;
-      }
-      if ('replace' in child.props && child.props.replace === true) {
-        return child;
-      }
-      const { element, ...restProps } = child.props as RouteProps;
-      if (!element) {
-        return child;
-      }
-      const nodeRef = createRef<HTMLDivElement>();
-      nodeRefs.push(nodeRef);
-      const newElement = <div className="item" ref={nodeRef}>{element}</div>;
-      return { ...child, props: { ...restProps, element: newElement } };
-    })!;
-    const routeObjects = createRoutesFromElements(routeElements);
-    return routeObjects.map((route, i) => ({ route, nodeRef: nodeRefs[i] }));
-  }, [children]);
+  const nodeRefs: RefObject<HTMLDivElement>[] = [];
+  const routeElements = Children.map(children, (child) => {
+    if (!child || !isValidElement(child)) {
+      return child;
+    }
+    if ('replace' in child.props && child.props.replace === true) {
+      return child;
+    }
+    const { element, ...restProps } = child.props as RouteProps;
+    if (!element) {
+      return child;
+    }
+    const nodeRef = createRef<HTMLDivElement>();
+    nodeRefs.push(nodeRef);
+    const newElement = <div className="item" ref={nodeRef}>{element}</div>;
+    return { ...child, props: { ...restProps, element: newElement } };
+  })!;
+  const routeObjects = createRoutesFromElements(routeElements);
+  const routes: RouteRef[] = routeObjects.map((route, i) => ({ route, nodeRef: nodeRefs[i] }));
 
-  const routesElement = useRoutes(routes.map(({route}) => route), location);
+  const routesElement = useRoutes(routeObjects, location);
 
   const next = findRoute(routes, relPath);
   if (prevRelPath.current && prevRelPath.current !== relPath) {
