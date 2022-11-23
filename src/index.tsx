@@ -1,9 +1,10 @@
 import { css } from '@emotion/react';
-import { useMemo, useRef, cloneElement, useContext, RefObject, Children, createRef, isValidElement, ReactNode } from 'react';
-import type { ReactElement } from 'react';
+import { useMemo, useRef, useContext, cloneElement, createRef, isValidElement, Children, useCallback} from 'react';
+import type { RefObject, ReactElement, ReactNode } from 'react';
 import { useLocation, useRoutes, createRoutesFromElements, matchRoutes, UNSAFE_RouteContext, Route, Navigate } from 'react-router-dom';
 import type { RouteObject, RouteProps, NavigateProps } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import type { CSSTransitionProps } from 'react-transition-group/CSSTransition';
 
 type Direction = 'forward' | 'back' | 'undirected';
 
@@ -94,7 +95,7 @@ const findRoute = (routes: RouteRef[], pathname: string) => {
   const matches = matchRoutes(routes.map(({route}) => route), pathname);
   if (matches === null) throw new Error(`Route ${pathname} does not match`);
   const index = routes.findIndex(({route}) => matches.some((match) => route === match.route));
-  return { index, nodeRef: routes[index].nodeRef };
+  return { index, ...routes[index] };
 }
 
 type RouteElement = ReactElement<RouteProps, typeof Route>;
@@ -161,15 +162,18 @@ const SlideRoutes = (props: SlideRoutesProps) => {
   }
   prevRelPath.current = relPath;
 
+  const childFactory = useCallback(
+    (child: ReactElement<CSSTransitionProps>) => cloneElement(child, { classNames: direction.current }),
+    [],
+  );
+
   return (
     <TransitionGroup
       className={`slide-routes ${animation}`}
-      childFactory={(child) =>
-        cloneElement(child, { classNames: direction.current })
-      }
+      childFactory={childFactory}
       css={getCss(duration, timing, direction.current)}
     >
-      <CSSTransition key={relPath} nodeRef={next.nodeRef} {...cssProps}>
+      <CSSTransition key={next.route.path ?? next.index} nodeRef={next.nodeRef} {...cssProps}>
         {routesElement}
       </CSSTransition>
     </TransitionGroup>
