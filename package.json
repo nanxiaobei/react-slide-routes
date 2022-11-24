@@ -24,7 +24,8 @@
   ],
   "scripts": {
     "watch": "rollup -wc --configPlugin @rollup/plugin-typescript",
-    "build": "rm -rf dist && rollup -c --configPlugin @rollup/plugin-typescript"
+    "build": "rm -rf dist && rollup -c --configPlugin @rollup/plugin-typescript",
+    "prepack": "$npm_execpath run build"
   },
   "peerDependencies": {
     "react": ">=16.8.0",

@@ -48,13 +48,24 @@ const App = () => (
 
 ## API
 
-| Prop        | Type      | Required | Default   | Description                                                                                              |
-| ----------- | --------- | -------- | --------- | -------------------------------------------------------------------------------------------------------- |
-| `animation` | `string`  |          | `'slide'` | Animation effect type, `'slide'`, `'vertical-slide'`, or `'rotate'`                                      |
-| `pathList`  | `array`   |          | `[]`      | Pre-defined `pathname` list, useful when enter a url, you want to "back" to some url (default "forward") |
-| `duration`  | `number`  |          | `200`     | `transition-duration` in `ms`                                                                            |
-| `timing`    | `string`  |          | `'ease'`  | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'`        |
-| `destroy`   | `boolean` |          | `true`    | If `false`, prev page will still exits in dom, just invisible                                            |
+| Prop        | Type       | Required | Default   | Description                                                                                              |
+| ----------- | ---------- | -------- | --------- | -------------------------------------------------------------------------------------------------------- |
+| `animation` | `string`   |          | `'slide'` | Animation effect type, `'slide'`, `'vertical-slide'`, or `'rotate'`                                      |
+| `compare`   | `function` |          | `null`    | Comparison function that defines route order, defaults to definition order; see below for details        |
+| `duration`  | `number`   |          | `200`     | `transition-duration` in `ms`                                                                            |
+| `timing`    | `string`   |          | `'ease'`  | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'`        |
+| `destroy`   | `boolean`  |          | `true`    | If `false`, prev page will still exits in dom, just invisible                                            |
+
+The `compare` prop works similarly to [`Array.prototype.sort`][sort]’s `compareFn` argument.
+It takes two arguments “a” and “b”, both react-router’s [`RouteObject`s][route].
+The return value is `-1` if “a” sorts before “b”, `1` if after, and `0` if they should stay in original order:
+
+```ts
+(a: RouteObject, b: RouteObject) => -1 | 0 | 1 
+```
+
+[sort]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort#syntax
+[route]: https://reactrouter.com/en/main/hooks/use-routes
 
 ## License
 

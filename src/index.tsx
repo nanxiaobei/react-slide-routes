@@ -1,13 +1,55 @@
 import { css } from '@emotion/react';
-import { useEffect, useMemo, useRef, cloneElement, Children } from 'react';
-import type { ReactElement, ReactNode } from 'react';
-import { useLocation, Routes } from 'react-router-dom';
+import { useMemo, useRef, useContext, cloneElement, createRef, isValidElement, Children, useCallback} from 'react';
+import type { RefObject, ReactElement, ReactNode } from 'react';
+import { useLocation, useRoutes, createRoutesFromElements, matchRoutes, UNSAFE_RouteContext, Route, Navigate } from 'react-router-dom';
+import type { RouteObject, RouteProps, NavigateProps } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import type { CSSTransitionProps } from 'react-transition-group/CSSTransition';
 
-const getCss = (duration: number, timing: string, direction: string) => css`
+type Direction = 'forward' | 'back' | 'undirected';
+
+const getDirection = (prevIndex: number, nextIndex: number): Direction => {
+  switch (Math.sign(nextIndex - prevIndex) as (-1|0|1)) {
+    case -1: return 'back';
+    case 0: return 'undirected';
+    case 1: return 'forward';
+  }
+}
+
+const cssTransitions = (cssFunc: string, max: string) => `
+  // back
+  & > .back-enter {
+    transform: ${cssFunc}(-${max});
+  }
+  & > .back-enter-active {
+    transform: ${cssFunc}(0);
+  }
+  & > .back-exit {
+    transform: ${cssFunc}(0);
+  }
+  & > .back-exit-active {
+    transform: ${cssFunc}(${max});
+  }
+
+  // forward
+  & > .forward-enter {
+    transform: ${cssFunc}(${max});
+  }
+  & > .forward-enter-active {
+    transform: ${cssFunc}(0);
+  }
+  & > .forward-exit {
+    transform: ${cssFunc}(0);
+  }
+  & > .forward-exit-active {
+    transform: ${cssFunc}(-${max});
+  }
+`;
+  
+const getCss = (duration: number, timing: string, direction: Direction) => css`
   display: grid;
 
-  .item {
+  & > .item {
     grid-area: 1 / 1 / 2 / 2;
 
     &:not(:only-child) {
@@ -19,120 +61,61 @@ const getCss = (duration: number, timing: string, direction: string) => css`
 
   &.slide {
     overflow: hidden;
-
-    // back
-    .back-enter {
-      transform: translateX(-100%);
-    }
-    .back-enter-active {
-      transform: translateX(0);
-    }
-    .back-exit {
-      transform: translateX(0);
-    }
-    .back-exit-active {
-      transform: translateX(100%);
-    }
-
-    // forward
-    .forward-enter {
-      transform: translateX(100%);
-    }
-    .forward-enter-active {
-      transform: translateX(0);
-    }
-    .forward-exit {
-      transform: translateX(0);
-    }
-    .forward-exit-active {
-      transform: translateX(-100%);
-    }
+    ${cssTransitions('translateX', '100%')}
   }
 
   &.vertical-slide {
     overflow: hidden;
-
-    // back
-    .back-enter {
-      transform: translateY(-100%);
-    }
-    .back-enter-active {
-      transform: translateY(0);
-    }
-    .back-exit {
-      transform: translateY(0);
-    }
-    .back-exit-active {
-      transform: translateY(100%);
-    }
-
-    // forward
-    .forward-enter {
-      transform: translateY(100%);
-    }
-    .forward-enter-active {
-      transform: translateY(0);
-    }
-    .forward-exit {
-      transform: translateY(0);
-    }
-    .forward-exit-active {
-      transform: translateY(-100%);
-    }
+    ${cssTransitions('translateY', '100%')}
   }
 
   &.rotate {
     perspective: 2000px;
-
-    .item {
+    & > .item {
       backface-visibility: hidden;
     }
-
-    // back
-    .back-enter {
-      transform: rotateY(-180deg);
-    }
-    .back-enter-active {
-      transform: rotateY(0);
-    }
-    .back-exit {
-      transform: rotateY(0);
-    }
-    .back-exit-active {
-      transform: rotateY(180deg);
-    }
-
-    // forward
-    .forward-enter {
-      transform: rotateY(180deg);
-    }
-    .forward-enter-active {
-      transform: rotateY(0);
-    }
-    .forward-exit {
-      transform: rotateY(0);
-    }
-    .forward-exit-active {
-      transform: rotateY(-180deg);
-    }
+    ${cssTransitions('rotateY', '180deg')}
   }
 `;
 
-const CACHE_KEY = '::slide::history::';
+// yoinked from useRoutes’ code:
+// https://github.com/remix-run/react-router/blob/f3d3e05ec00c6950720930beaf74fecbaf9dc5b6/packages/react-router/lib/hooks.tsx#L302
+const useRelPath = (pathname: string = '') => {
+  const { matches: parentMatches } = useContext(UNSAFE_RouteContext);
+  const routeMatch = parentMatches[parentMatches.length - 1];
+  const parentPathnameBase = routeMatch ? routeMatch.pathnameBase : '/';
+  return parentPathnameBase === '/'
+    ? pathname
+    : pathname.slice(parentPathnameBase.length) || '/';
+}
+
+type RouteRef = { route: RouteObject, nodeRef: RefObject<HTMLDivElement> }
+
+const findRoute = (routes: RouteRef[], pathname: string) => {
+  const matches = matchRoutes(routes.map(({route}) => route), pathname);
+  if (matches === null) throw new Error(`Route ${pathname} does not match`);
+  const index = routes.findIndex(({route}) => matches.some((match) => route === match.route));
+  return { index, ...routes[index] };
+}
+
+type RouteElement = ReactElement<RouteProps, typeof Route>;
+type NavigateElement = ReactElement<NavigateProps, typeof Navigate>;
+type ChildElement = RouteElement | NavigateElement;
+const isRouteElement = (e: ReactNode): e is RouteElement => isValidElement(e) && e.type === Route;
 
 export type SlideRoutesProps = {
   animation?: 'slide' | 'vertical-slide' | 'rotate';
-  pathList?: string[];
+  compare?(a: RouteObject, b: RouteObject): -1|0|1;
   duration?: number;
   timing?: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'linear';
   destroy?: boolean;
-  children: ReactNode;
+  children: ChildElement | (ChildElement | undefined | null)[];
 };
 
 const SlideRoutes = (props: SlideRoutesProps) => {
   const {
     animation = 'slide',
-    pathList = [],
+    compare = null,
     duration = 200,
     timing = 'ease',
     destroy = true,
@@ -140,96 +123,58 @@ const SlideRoutes = (props: SlideRoutesProps) => {
   } = props;
 
   const location = useLocation();
-  const { pathname } = location;
+  const relPath = useRelPath(location.pathname);
 
-  const hasMount = useRef(false);
-  const pathQueue = useRef<string[]>([]);
-  const SHOULD_UPDATE_CACHE = useRef(false);
-
-  const prevPath = useRef<string>('');
-  const direction = useRef('');
-
-  if (!hasMount.current) {
-    // mount
-    hasMount.current = true;
-
-    if (pathList.length > 0) {
-      prevPath.current = pathname;
-    } else {
-      const cacheList = sessionStorage.getItem(CACHE_KEY);
-      if (!cacheList) {
-        prevPath.current = pathname;
-        pathQueue.current = [pathname];
-        SHOULD_UPDATE_CACHE.current = true;
-      } else {
-        pathQueue.current = JSON.parse(cacheList);
-        prevPath.current = pathQueue.current[pathQueue.current.length - 1];
-      }
-    }
-  } else {
-    // update
-    if (prevPath.current !== pathname) {
-      if (pathList.length > 0) {
-        const prevIndex = pathList.indexOf(prevPath.current);
-        const nextIndex = pathList.indexOf(pathname);
-        direction.current = prevIndex < nextIndex ? 'forward' : 'back';
-      } else {
-        const nextIndex = pathQueue.current.lastIndexOf(pathname);
-
-        if (nextIndex === -1) {
-          direction.current = 'forward';
-          pathQueue.current.push(pathname);
-        } else {
-          direction.current = 'back';
-          pathQueue.current.length = nextIndex + 1;
-        }
-
-        SHOULD_UPDATE_CACHE.current = true;
-      }
-
-      prevPath.current = pathname;
-    }
-  }
+  const prevRelPath = useRef<string | null>(null);
+  const direction = useRef<Direction>('undirected');
 
   const cssProps = useMemo(
     () => (destroy ? { timeout: duration } : { addEndListener() {} }),
     [destroy, duration]
   );
 
-  useEffect(() => {
-    if (SHOULD_UPDATE_CACHE.current) {
-      SHOULD_UPDATE_CACHE.current = false;
-      sessionStorage.setItem(CACHE_KEY, JSON.stringify(pathQueue.current));
+  const nodeRefs: RefObject<HTMLDivElement>[] = [];
+  const routeElements = Children.map(children, (child) => {
+    if (!isRouteElement(child)) {
+      return child;
     }
-  });
+    const { element, ...restProps } = child.props;
+    if (!element) {
+      return child;
+    }
+    const nodeRef = createRef<HTMLDivElement>();
+    nodeRefs.push(nodeRef);
+    const newElement = <div className="item" ref={nodeRef}>{element}</div>;
+    return { ...child, props: { ...restProps, element: newElement } };
+  })!;
+  const routeObjects = createRoutesFromElements(routeElements);
+  const routesElement = useRoutes(routeObjects, location);
 
-  const routList = useMemo(() => {
-    return Children.map(children, (child) => {
-      if (!child) {
-        return child;
-      }
+  const routes = routeObjects.map<RouteRef>((route, i) => ({ route, nodeRef: nodeRefs[i] }));
+  if (compare) {
+    routes.sort((a, b) => compare(a.route, b.route));
+  }
 
-      const newChild = child as ReactElement;
-      const { element, ...restProps } = newChild.props;
-      if (!element || element.props.replace === true) {
-        return child;
-      }
+  const next = findRoute(routes, relPath);
+  if (prevRelPath.current && prevRelPath.current !== relPath) {
+    const prev = findRoute(routes, prevRelPath.current);
+    direction.current = getDirection(prev.index, next.index);
+  }
+  prevRelPath.current = relPath;
 
-      const newElement = <div className="item">{element}</div>;
-      return { ...newChild, props: { ...restProps, element: newElement } };
-    });
-  }, [children]);
+  const childFactory = useCallback(
+    (child: ReactElement<CSSTransitionProps>) => cloneElement(child, { classNames: direction.current }),
+    [],
+  );
 
   return (
     <TransitionGroup
       className={`slide-routes ${animation}`}
-      childFactory={(child) =>
-        cloneElement(child, { classNames: direction.current })
-      }
+      childFactory={childFactory}
       css={getCss(duration, timing, direction.current)}
     >
-      <CSSTransition key={pathname} {...cssProps}>
-        <Routes location={location}>{routList}</Routes>
+      <CSSTransition key={next.route.path ?? next.index} nodeRef={next.nodeRef} {...cssProps}>
+        {routesElement}
       </CSSTransition>
     </TransitionGroup>
   );
