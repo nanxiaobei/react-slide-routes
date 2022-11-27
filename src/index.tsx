@@ -1,7 +1,24 @@
 import { css } from '@emotion/react';
-import { useMemo, useRef, useContext, cloneElement, createRef, isValidElement, Children, useCallback} from 'react';
+import {
+  useMemo,
+  useRef,
+  useContext,
+  cloneElement,
+  createRef,
+  isValidElement,
+  Children,
+  useCallback,
+} from 'react';
 import type { RefObject, ReactElement, ReactNode } from 'react';
-import { useLocation, useRoutes, createRoutesFromElements, matchRoutes, UNSAFE_RouteContext, Route, Navigate } from 'react-router-dom';
+import {
+  useLocation,
+  useRoutes,
+  createRoutesFromElements,
+  matchRoutes,
+  UNSAFE_RouteContext,
+  Route,
+  Navigate,
+} from 'react-router-dom';
 import type { RouteObject, RouteProps, NavigateProps } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import type { CSSTransitionProps } from 'react-transition-group/CSSTransition';
@@ -9,12 +26,15 @@ import type { CSSTransitionProps } from 'react-transition-group/CSSTransition';
 type Direction = 'forward' | 'back' | 'undirected';
 
 const getDirection = (prevIndex: number, nextIndex: number): Direction => {
-  switch (Math.sign(nextIndex - prevIndex) as (-1|0|1)) {
-    case -1: return 'back';
-    case 0: return 'undirected';
-    case 1: return 'forward';
+  switch (Math.sign(nextIndex - prevIndex) as -1 | 0 | 1) {
+    case -1:
+      return 'back';
+    case 0:
+      return 'undirected';
+    case 1:
+      return 'forward';
   }
-}
+};
 
 const cssTransitions = (cssFunc: string, max: string) => `
   // back
@@ -45,7 +65,7 @@ const cssTransitions = (cssFunc: string, max: string) => `
     transform: ${cssFunc}(-${max});
   }
 `;
-  
+
 const getCss = (duration: number, timing: string, direction: Direction) => css`
   display: grid;
 
@@ -78,6 +98,13 @@ const getCss = (duration: number, timing: string, direction: Direction) => css`
   }
 `;
 
+type RouteRef = { route: RouteObject; nodeRef: RefObject<HTMLDivElement> };
+type RouteElement = ReactElement<RouteProps, typeof Route>;
+type NavigateElement = ReactElement<NavigateProps, typeof Navigate>;
+type ChildElement = RouteElement | NavigateElement;
+const isRouteElement = (e: ReactNode): e is RouteElement =>
+  isValidElement(e) && e.type === Route;
+
 // yoinked from useRoutes’ code:
 // https://github.com/remix-run/react-router/blob/f3d3e05ec00c6950720930beaf74fecbaf9dc5b6/packages/react-router/lib/hooks.tsx#L302
 const useRelPath = (pathname: string = '') => {
@@ -87,25 +114,23 @@ const useRelPath = (pathname: string = '') => {
   return parentPathnameBase === '/'
     ? pathname
     : pathname.slice(parentPathnameBase.length) || '/';
-}
-
-type RouteRef = { route: RouteObject, nodeRef: RefObject<HTMLDivElement> }
+};
 
 const findRoute = (routes: RouteRef[], pathname: string) => {
-  const matches = matchRoutes(routes.map(({route}) => route), pathname);
+  const matches = matchRoutes(
+    routes.map(({ route }) => route),
+    pathname
+  );
   if (matches === null) throw new Error(`Route ${pathname} does not match`);
-  const index = routes.findIndex(({route}) => matches.some((match) => route === match.route));
+  const index = routes.findIndex(({ route }) =>
+    matches.some((match) => route === match.route)
+  );
   return { index, ...routes[index] };
-}
-
-type RouteElement = ReactElement<RouteProps, typeof Route>;
-type NavigateElement = ReactElement<NavigateProps, typeof Navigate>;
-type ChildElement = RouteElement | NavigateElement;
-const isRouteElement = (e: ReactNode): e is RouteElement => isValidElement(e) && e.type === Route;
+};
 
 export type SlideRoutesProps = {
   animation?: 'slide' | 'vertical-slide' | 'rotate';
-  compare?(a: RouteObject, b: RouteObject): -1|0|1;
+  compare?(a: RouteObject, b: RouteObject): -1 | 0 | 1;
   duration?: number;
   timing?: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'linear';
   destroy?: boolean;
@@ -144,27 +169,37 @@ const SlideRoutes = (props: SlideRoutesProps) => {
     }
     const nodeRef = createRef<HTMLDivElement>();
     nodeRefs.push(nodeRef);
-    const newElement = <div className="item" ref={nodeRef}>{element}</div>;
+    const newElement = (
+      <div className="item" ref={nodeRef}>
+        {element}
+      </div>
+    );
     return { ...child, props: { ...restProps, element: newElement } };
   })!;
   const routeObjects = createRoutesFromElements(routeElements);
   const routesElement = useRoutes(routeObjects, location);
 
-  const routes = routeObjects.map<RouteRef>((route, i) => ({ route, nodeRef: nodeRefs[i] }));
+  const routes = routeObjects.map<RouteRef>((route, i) => ({
+    route,
+    nodeRef: nodeRefs[i],
+  }));
   if (compare) {
     routes.sort((a, b) => compare(a.route, b.route));
   }
 
   const next = findRoute(routes, relPath);
+
   if (prevRelPath.current && prevRelPath.current !== relPath) {
     const prev = findRoute(routes, prevRelPath.current);
     direction.current = getDirection(prev.index, next.index);
   }
+
   prevRelPath.current = relPath;
 
   const childFactory = useCallback(
-    (child: ReactElement<CSSTransitionProps>) => cloneElement(child, { classNames: direction.current }),
-    [],
+    (child: ReactElement<CSSTransitionProps>) =>
+      cloneElement(child, { classNames: direction.current }),
+    []
   );
 
   return (
@@ -173,7 +208,11 @@ const SlideRoutes = (props: SlideRoutesProps) => {
       childFactory={childFactory}
       css={getCss(duration, timing, direction.current)}
     >
-      <CSSTransition key={next.route.path ?? next.index} nodeRef={next.nodeRef} {...cssProps}>
+      <CSSTransition
+        key={next.route.path ?? next.index}
+        nodeRef={next.nodeRef}
+        {...cssProps}
+      >
         {routesElement}
       </CSSTransition>
     </TransitionGroup>
