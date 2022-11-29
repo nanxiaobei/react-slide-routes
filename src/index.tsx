@@ -1,72 +1,76 @@
-import { css } from '@emotion/react';
 import {
-  useMemo,
-  useRef,
-  useContext,
+  Children,
   cloneElement,
   createRef,
   isValidElement,
-  Children,
+  RefObject,
   useCallback,
+  useContext,
+  useMemo,
+  useRef,
 } from 'react';
-import type { RefObject, ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import {
-  useLocation,
-  useRoutes,
   createRoutesFromElements,
   matchRoutes,
-  UNSAFE_RouteContext,
-  Route,
   Navigate,
+  Route,
+  UNSAFE_RouteContext,
+  useLocation,
+  useRoutes,
 } from 'react-router-dom';
-import type { RouteObject, RouteProps, NavigateProps } from 'react-router-dom';
+import type { NavigateProps, RouteObject, RouteProps } from 'react-router-dom';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import type { CSSTransitionProps } from 'react-transition-group/CSSTransition';
+import { css } from '@emotion/react';
 
 type Direction = 'forward' | 'back' | 'undirected';
-
-const getDirection = (prevIndex: number, nextIndex: number): Direction => {
-  switch (Math.sign(nextIndex - prevIndex) as -1 | 0 | 1) {
-    case -1:
-      return 'back';
-    case 0:
-      return 'undirected';
-    case 1:
-      return 'forward';
-  }
+type RouteElement = ReactElement<RouteProps, typeof Route>;
+type ChildElement = RouteElement | ReactElement<NavigateProps, typeof Navigate>;
+type NewRouteObject = RouteObject & {
+  id: string;
+  element: ReactElement & { ref: RefObject<HTMLDivElement> };
 };
 
-const cssTransitions = (cssFunc: string, max: string) => `
+const isRouteElement = (e: ReactNode): e is RouteElement => {
+  return isValidElement(e) && e.type === Route;
+};
+
+const getTransformStyles = (transformFn: string, max: string) => `
   // back
   & > .back-enter {
-    transform: ${cssFunc}(-${max});
+    transform: ${transformFn}(-${max});
   }
   & > .back-enter-active {
-    transform: ${cssFunc}(0);
+    transform: ${transformFn}(0);
   }
   & > .back-exit {
-    transform: ${cssFunc}(0);
+    transform: ${transformFn}(0);
   }
   & > .back-exit-active {
-    transform: ${cssFunc}(${max});
+    transform: ${transformFn}(${max});
   }
 
   // forward
   & > .forward-enter {
-    transform: ${cssFunc}(${max});
+    transform: ${transformFn}(${max});
   }
   & > .forward-enter-active {
-    transform: ${cssFunc}(0);
+    transform: ${transformFn}(0);
   }
   & > .forward-exit {
-    transform: ${cssFunc}(0);
+    transform: ${transformFn}(0);
   }
   & > .forward-exit-active {
-    transform: ${cssFunc}(-${max});
+    transform: ${transformFn}(-${max});
   }
 `;
 
-const getCss = (duration: number, timing: string, direction: Direction) => css`
+const getTransitionGroupCss = (
+  duration: number,
+  timing: string,
+  direction: Direction
+) => css`
   display: grid;
 
   & > .item {
@@ -81,12 +85,12 @@ const getCss = (duration: number, timing: string, direction: Direction) => css`
 
   &.slide {
     overflow: hidden;
-    ${cssTransitions('translateX', '100%')}
+    ${getTransformStyles('translateX', '100%')}
   }
 
   &.vertical-slide {
     overflow: hidden;
-    ${cssTransitions('translateY', '100%')}
+    ${getTransformStyles('translateY', '100%')}
   }
 
   &.rotate {
@@ -94,20 +98,13 @@ const getCss = (duration: number, timing: string, direction: Direction) => css`
     & > .item {
       backface-visibility: hidden;
     }
-    ${cssTransitions('rotateY', '180deg')}
+    ${getTransformStyles('rotateY', '180deg')}
   }
 `;
 
-type RouteRef = { route: RouteObject; nodeRef: RefObject<HTMLDivElement> };
-type RouteElement = ReactElement<RouteProps, typeof Route>;
-type NavigateElement = ReactElement<NavigateProps, typeof Navigate>;
-type ChildElement = RouteElement | NavigateElement;
-const isRouteElement = (e: ReactNode): e is RouteElement =>
-  isValidElement(e) && e.type === Route;
-
-// yoinked from useRoutes’ code:
+// from useRoutes’ code:
 // https://github.com/remix-run/react-router/blob/f3d3e05ec00c6950720930beaf74fecbaf9dc5b6/packages/react-router/lib/hooks.tsx#L302
-const useRelPath = (pathname: string = '') => {
+const usePathname = (pathname: string = '') => {
   const { matches: parentMatches } = useContext(UNSAFE_RouteContext);
   const routeMatch = parentMatches[parentMatches.length - 1];
   const parentPathnameBase = routeMatch ? routeMatch.pathnameBase : '/';
@@ -116,85 +113,96 @@ const useRelPath = (pathname: string = '') => {
     : pathname.slice(parentPathnameBase.length) || '/';
 };
 
-const findRoute = (routes: RouteRef[], pathname: string) => {
-  const matches = matchRoutes(
-    routes.map(({ route }) => route),
-    pathname
-  );
-  if (matches === null) throw new Error(`Route ${pathname} does not match`);
-  const index = routes.findIndex(({ route }) =>
-    matches.some((match) => route === match.route)
-  );
-  return { index, ...routes[index] };
+const getMatch = (routeObjects: NewRouteObject[], pathname: string) => {
+  const matches = matchRoutes(routeObjects, pathname);
+  if (matches === null) {
+    throw new Error(`Route ${pathname} does not match`);
+  }
+
+  const index = routeObjects.findIndex((route) => {
+    return matches.some((match) => match.route === route);
+  });
+  return { index, route: routeObjects[index] };
 };
 
 export type SlideRoutesProps = {
   animation?: 'slide' | 'vertical-slide' | 'rotate';
-  compare?(a: RouteObject, b: RouteObject): -1 | 0 | 1;
   duration?: number;
   timing?: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'linear';
   destroy?: boolean;
   children: ChildElement | (ChildElement | undefined | null)[];
+  compare?: (a: NewRouteObject, b: NewRouteObject) => number;
 };
 
 const SlideRoutes = (props: SlideRoutesProps) => {
   const {
     animation = 'slide',
-    compare = null,
     duration = 200,
     timing = 'ease',
     destroy = true,
+    compare = null,
     children,
   } = props;
 
   const location = useLocation();
-  const relPath = useRelPath(location.pathname);
-
-  const prevRelPath = useRef<string | null>(null);
+  const nextPath = usePathname(location.pathname);
+  const prevPath = useRef<string | null>(null);
   const direction = useRef<Direction>('undirected');
 
-  const cssProps = useMemo(
-    () => (destroy ? { timeout: duration } : { addEndListener() {} }),
-    [destroy, duration]
-  );
+  const routeObjects = useMemo(() => {
+    const objects = createRoutesFromElements(
+      Children.map(children, (child) => {
+        if (!isRouteElement(child)) {
+          return child;
+        }
 
-  const nodeRefs: RefObject<HTMLDivElement>[] = [];
-  const routeElements = Children.map(children, (child) => {
-    if (!isRouteElement(child)) {
-      return child;
+        const { element, ...restProps } = child.props;
+        if (!element) {
+          return child;
+        }
+
+        const nodeRef = createRef<HTMLDivElement>();
+        const newElement = (
+          <div className="item" ref={nodeRef}>
+            {element}
+          </div>
+        );
+
+        return { ...child, props: { ...restProps, element: newElement } };
+      })
+    ) as NewRouteObject[];
+
+    if (compare) {
+      objects.sort(compare);
     }
-    const { element, ...restProps } = child.props;
-    if (!element) {
-      return child;
+
+    return objects;
+  }, [children, compare]);
+
+  const routeElements = useRoutes(routeObjects, location);
+
+  const routeObjectsRef = useRef([] as NewRouteObject[]);
+  routeObjectsRef.current = routeObjects;
+
+  const nextMatch = useMemo(() => {
+    const next = getMatch(routeObjectsRef.current, nextPath);
+
+    if (prevPath.current && prevPath.current !== nextPath) {
+      const prev = getMatch(routeObjectsRef.current, prevPath.current);
+      const diff = next.index - prev.index;
+
+      if (diff > 0) {
+        direction.current = 'forward';
+      } else if (diff < 0) {
+        direction.current = 'back';
+      } else if (diff === 0) {
+        direction.current = 'undirected';
+      }
     }
-    const nodeRef = createRef<HTMLDivElement>();
-    nodeRefs.push(nodeRef);
-    const newElement = (
-      <div className="item" ref={nodeRef}>
-        {element}
-      </div>
-    );
-    return { ...child, props: { ...restProps, element: newElement } };
-  })!;
-  const routeObjects = createRoutesFromElements(routeElements);
-  const routesElement = useRoutes(routeObjects, location);
 
-  const routes = routeObjects.map<RouteRef>((route, i) => ({
-    route,
-    nodeRef: nodeRefs[i],
-  }));
-  if (compare) {
-    routes.sort((a, b) => compare(a.route, b.route));
-  }
-
-  const next = findRoute(routes, relPath);
-
-  if (prevRelPath.current && prevRelPath.current !== relPath) {
-    const prev = findRoute(routes, prevRelPath.current);
-    direction.current = getDirection(prev.index, next.index);
-  }
-
-  prevRelPath.current = relPath;
+    prevPath.current = nextPath;
+    return next;
+  }, [nextPath]);
 
   const childFactory = useCallback(
     (child: ReactElement<CSSTransitionProps>) =>
@@ -202,18 +210,23 @@ const SlideRoutes = (props: SlideRoutesProps) => {
     []
   );
 
+  const cssTransitionProps = useMemo(
+    () => (destroy ? { timeout: duration } : { addEndListener() {} }),
+    [destroy, duration]
+  );
+
   return (
     <TransitionGroup
       className={`slide-routes ${animation}`}
       childFactory={childFactory}
-      css={getCss(duration, timing, direction.current)}
+      css={getTransitionGroupCss(duration, timing, direction.current)}
     >
       <CSSTransition
-        key={next.route.path ?? next.index}
-        nodeRef={next.nodeRef}
-        {...cssProps}
+        key={nextMatch.route.path ?? nextMatch.index}
+        nodeRef={nextMatch.route.element.ref}
+        {...cssTransitionProps}
       >
-        {routesElement}
+        {routeElements}
       </CSSTransition>
     </TransitionGroup>
   );
