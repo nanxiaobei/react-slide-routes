@@ -27,7 +27,7 @@ import { css } from '@emotion/react';
 type Direction = 'forward' | 'back' | 'undirected';
 type RouteElement = ReactElement<RouteProps, typeof Route>;
 type ChildElement = RouteElement | ReactElement<NavigateProps, typeof Navigate>;
-type NewRouteObject = RouteObject & {
+type RouteItem = RouteObject & {
   id: string;
   element: ReactElement & { ref: RefObject<HTMLDivElement> };
 };
@@ -113,16 +113,16 @@ const usePathname = (pathname: string = '') => {
     : pathname.slice(parentPathnameBase.length) || '/';
 };
 
-const getMatch = (routeObjects: NewRouteObject[], pathname: string) => {
-  const matches = matchRoutes(routeObjects, pathname);
+const getMatch = (routeList: RouteItem[], pathname: string) => {
+  const matches = matchRoutes(routeList, pathname);
   if (matches === null) {
     throw new Error(`Route ${pathname} does not match`);
   }
 
-  const index = routeObjects.findIndex((route) => {
+  const index = routeList.findIndex((route) => {
     return matches.some((match) => match.route === route);
   });
-  return { index, route: routeObjects[index] };
+  return { index, route: routeList[index] };
 };
 
 export type SlideRoutesProps = {
@@ -131,7 +131,7 @@ export type SlideRoutesProps = {
   timing?: 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out' | 'linear';
   destroy?: boolean;
   children: ChildElement | (ChildElement | undefined | null)[];
-  compare?: (a: NewRouteObject, b: NewRouteObject) => number;
+  compare?: (a: RouteItem, b: RouteItem) => number;
 };
 
 const SlideRoutes = (props: SlideRoutesProps) => {
@@ -140,7 +140,7 @@ const SlideRoutes = (props: SlideRoutesProps) => {
     duration = 200,
     timing = 'ease',
     destroy = true,
-    compare = null,
+    compare,
     children,
   } = props;
 
@@ -149,8 +149,8 @@ const SlideRoutes = (props: SlideRoutesProps) => {
   const prevPath = useRef<string | null>(null);
   const direction = useRef<Direction>('undirected');
 
-  const routeObjects = useMemo(() => {
-    const objects = createRoutesFromElements(
+  const routeList = useMemo(() => {
+    const list = createRoutesFromElements(
       Children.map(children, (child) => {
         if (!isRouteElement(child)) {
           return child;
@@ -170,25 +170,25 @@ const SlideRoutes = (props: SlideRoutesProps) => {
 
         return { ...child, props: { ...restProps, element: newElement } };
       })
-    ) as NewRouteObject[];
+    ) as RouteItem[];
 
     if (compare) {
-      objects.sort(compare);
+      list.sort(compare);
     }
 
-    return objects;
+    return list;
   }, [children, compare]);
 
-  const routeElements = useRoutes(routeObjects, location);
+  const routeElements = useRoutes(routeList, location);
 
-  const routeObjectsRef = useRef([] as NewRouteObject[]);
-  routeObjectsRef.current = routeObjects;
+  const routeListRef = useRef([] as RouteItem[]);
+  routeListRef.current = routeList;
 
   const nextMatch = useMemo(() => {
-    const next = getMatch(routeObjectsRef.current, nextPath);
+    const next = getMatch(routeListRef.current, nextPath);
 
     if (prevPath.current && prevPath.current !== nextPath) {
-      const prev = getMatch(routeObjectsRef.current, prevPath.current);
+      const prev = getMatch(routeListRef.current, prevPath.current);
       const diff = next.index - prev.index;
 
       if (diff > 0) {
