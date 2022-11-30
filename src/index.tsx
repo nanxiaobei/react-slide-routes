@@ -26,7 +26,7 @@ import { css } from '@emotion/react';
 type Direction = 'forward' | 'back' | 'undirected';
 type RouteElement = ReactElement<RouteProps, typeof Route>;
 type ChildElement = RouteElement | ReactElement<NavigateProps, typeof Navigate>;
-type RouteItem = RouteObject & {
+type RouteItem = Required<RouteObject> & {
   element: ReactElement & { ref: RefObject<HTMLDivElement> };
 };
 
