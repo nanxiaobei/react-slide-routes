@@ -148,35 +148,31 @@ const SlideRoutes = (props: SlideRoutesProps) => {
   const prevPath = useRef<string | null>(null);
   const direction = useRef<Direction>('undirected');
 
-  const routes = useMemo(() => {
-    const list = createRoutesFromElements(
-      Children.map(children, (child) => {
-        if (!isRouteElement(child)) {
-          return child;
-        }
+  const routes = createRoutesFromElements(
+    Children.map(children, (child) => {
+      if (!isRouteElement(child)) {
+        return child;
+      }
 
-        const { element, ...restProps } = child.props;
-        if (!element) {
-          return child;
-        }
+      const { element, ...restProps } = child.props;
+      if (!element) {
+        return child;
+      }
 
-        const nodeRef = createRef<HTMLDivElement>();
-        const newElement = (
-          <div className="item" ref={nodeRef}>
-            {element}
-          </div>
-        );
+      const nodeRef = createRef<HTMLDivElement>();
+      const newElement = (
+        <div className="item" ref={nodeRef}>
+          {element}
+        </div>
+      );
 
-        return { ...child, props: { ...restProps, element: newElement } };
-      })
-    ) as RouteItem[];
+      return { ...child, props: { ...restProps, element: newElement } };
+    })
+  ) as RouteItem[];
 
-    if (compare) {
-      list.sort(compare);
-    }
-
-    return list;
-  }, [children, compare]);
+  if (compare) {
+    routes.sort(compare);
+  }
 
   const routeElements = useRoutes(routes, location);
 
