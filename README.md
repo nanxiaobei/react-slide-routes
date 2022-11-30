@@ -6,7 +6,7 @@ The easiest way to slide React routes
 [![npm](https://img.shields.io/npm/dt/react-slide-routes?style=flat-square)](https://www.npmtrends.com/react-slide-routes)
 [![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-slide-routes?style=flat-square)](https://bundlephobia.com/result?p=react-slide-routes)
 [![npm peer dependency version](https://img.shields.io/npm/dependency-version/react-slide-routes/peer/react?style=flat-square)](https://github.com/facebook/react)
-[![npm peer dependency version](https://img.shields.io/npm/dependency-version/react-slide-routes/peer/react-router?style=flat-square)](https://github.com/remix-run/react-router)
+[![npm peer dependency version](https://img.shields.io/npm/dependency-version/react-slide-routes/peer/react-router-dom?style=flat-square)](https://github.com/remix-run/rreact-router-dom)
 [![GitHub](https://img.shields.io/github/license/nanxiaobei/react-slide-routes?style=flat-square)](https://github.com/nanxiaobei/react-slide-routes/blob/main/LICENSE)
 
 ## Fit
@@ -48,13 +48,13 @@ const App = () => (
 
 ## API
 
-| Prop        | Type       | Required | Default   | Description                                                                                                                                                                                                                                   |
-| ----------- | ---------- | -------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `animation` | `string`   |          | `'slide'` | Animation effect type, `'slide'`, `'vertical-slide'`, or `'rotate'`                                                                                                                                                                           |
-| `duration`  | `number`   |          | `200`     | `transition-duration` in `ms`                                                                                                                                                                                                                 |
-| `timing`    | `string`   |          | `'ease'`  | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'`                                                                                                                                             |
-| `destroy`   | `boolean`  |          | `true`    | If `false`, prev page will still exits in dom, just invisible                                                                                                                                                                                 |
-| `compare`   | `function` |          | -         | A function to sort the routes' order (defaults to the definition order). `compare` will be used to `routeList.sort((a, b) => compare(a, b))`. `a` & `b` are [`RouteObject`](https://reactrouter.com/en/main/hooks/use-routes) of react-router |
+| Prop        | Type       | Required | Default   | Description                                                                                                                                                                                                                       |
+| ----------- | ---------- | -------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `animation` | `string`   |          | `'slide'` | Animation effect type, `'slide'`, `'vertical-slide'`, or `'rotate'`                                                                                                                                                               |
+| `duration`  | `number`   |          | `200`     | `transition-duration` in `ms`                                                                                                                                                                                                     |
+| `timing`    | `string`   |          | `'ease'`  | `transition-timing-function`, one of `'ease'` `'ease-in'` `'ease-out'` `'ease-in-out'` `'linear'`                                                                                                                                 |
+| `destroy`   | `boolean`  |          | `true`    | If `false`, prev page will still exits in dom, just invisible                                                                                                                                                                     |
+| `compare`   | `function` |          | -         | Function to sort the routes' order (defaults to the definition order). `compare` will be used to `routes.sort((a, b) => compare(a, b))`, `routes` is the param to [`useRoutes`](https://reactrouter.com/en/main/hooks/use-routes) |
 
 ## License
 
