@@ -112,16 +112,16 @@ const usePathname = (pathname: string = '') => {
     : pathname.slice(parentPathnameBase.length) || '/';
 };
 
-const getMatch = (routeList: RouteItem[], pathname: string) => {
-  const matches = matchRoutes(routeList, pathname);
+const getMatch = (routes: RouteItem[], pathname: string) => {
+  const matches = matchRoutes(routes, pathname);
   if (matches === null) {
     throw new Error(`Route ${pathname} does not match`);
   }
 
-  const index = routeList.findIndex((route) => {
+  const index = routes.findIndex((route) => {
     return matches.some((match) => match.route === route);
   });
-  return { index, route: routeList[index] };
+  return { index, route: routes[index] };
 };
 
 export type SlideRoutesProps = {
@@ -148,7 +148,7 @@ const SlideRoutes = (props: SlideRoutesProps) => {
   const prevPath = useRef<string | null>(null);
   const direction = useRef<Direction>('undirected');
 
-  const routeList = useMemo(() => {
+  const routes = useMemo(() => {
     const list = createRoutesFromElements(
       Children.map(children, (child) => {
         if (!isRouteElement(child)) {
@@ -178,16 +178,16 @@ const SlideRoutes = (props: SlideRoutesProps) => {
     return list;
   }, [children, compare]);
 
-  const routeElements = useRoutes(routeList, location);
+  const routeElements = useRoutes(routes, location);
 
-  const routeListRef = useRef([] as RouteItem[]);
-  routeListRef.current = routeList;
+  const routesRef = useRef([] as RouteItem[]);
+  routesRef.current = routes;
 
   const nextMatch = useMemo(() => {
-    const next = getMatch(routeListRef.current, nextPath);
+    const next = getMatch(routesRef.current, nextPath);
 
     if (prevPath.current && prevPath.current !== nextPath) {
-      const prev = getMatch(routeListRef.current, prevPath.current);
+      const prev = getMatch(routesRef.current, prevPath.current);
       const diff = next.index - prev.index;
 
       if (diff > 0) {
