@@ -27,7 +27,6 @@ type Direction = 'forward' | 'back' | 'undirected';
 type RouteElement = ReactElement<RouteProps, typeof Route>;
 type ChildElement = RouteElement | ReactElement<NavigateProps, typeof Navigate>;
 type RouteItem = RouteObject & {
-  id: string;
   element: ReactElement & { ref: RefObject<HTMLDivElement> };
 };
 
