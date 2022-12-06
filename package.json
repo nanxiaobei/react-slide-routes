@@ -23,7 +23,7 @@
     "src"
   ],
   "scripts": {
-    "build": "rm -rf dist && rollup -c --configPlugin @rollup/plugin-typescript"
+    "build": "rollup -c --configPlugin @rollup/plugin-typescript"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
