@@ -30,10 +30,6 @@ type RouteItem = Required<RouteObject> & {
   element: ReactElement & { ref: RefObject<HTMLDivElement> };
 };
 
-const isRouteElement = (e: ReactNode): e is RouteElement => {
-  return isValidElement(e) && e.type === Route;
-};
-
 const getTransformStyles = (transformFn: string, max: string) => `
   // back
   & > .back-enter {
@@ -100,9 +96,13 @@ const getTransitionGroupCss = (
   }
 `;
 
-// from useRoutes’ code:
+const isRouteElement = (element: ReactNode): element is RouteElement => {
+  return isValidElement(element) && element.type === Route;
+};
+
+// from useRoutes:
 // https://github.com/remix-run/react-router/blob/f3d3e05ec00c6950720930beaf74fecbaf9dc5b6/packages/react-router/lib/hooks.tsx#L302
-const usePathname = (pathname: string = '') => {
+const useNextPath = (pathname: string = '') => {
   const { matches: parentMatches } = useContext(UNSAFE_RouteContext);
   const routeMatch = parentMatches[parentMatches.length - 1];
   const parentPathnameBase = routeMatch ? routeMatch.pathnameBase : '/';
@@ -142,62 +142,57 @@ const SlideRoutes = (props: SlideRoutesProps) => {
     children,
   } = props;
 
-  const location = useLocation();
-  const nextPath = usePathname(location.pathname);
-  const prevPath = useRef<string | null>(null);
-  const direction = useRef<Direction>('undirected');
+  // routes
+  const routeElements = Children.map(children, (child) => {
+    if (!isRouteElement(child)) {
+      return child;
+    }
 
-  const routes = createRoutesFromElements(
-    Children.map(children, (child) => {
-      if (!isRouteElement(child)) {
-        return child;
-      }
+    const { element, ...restProps } = child.props;
+    if (!element) {
+      return child;
+    }
 
-      const { element, ...restProps } = child.props;
-      if (!element) {
-        return child;
-      }
+    const nodeRef = createRef<HTMLDivElement>();
+    const newElement = (
+      <div className="item" ref={nodeRef}>
+        {element}
+      </div>
+    );
+    return { ...child, props: { ...restProps, element: newElement } };
+  });
 
-      const nodeRef = createRef<HTMLDivElement>();
-      const newElement = (
-        <div className="item" ref={nodeRef}>
-          {element}
-        </div>
-      );
-
-      return { ...child, props: { ...restProps, element: newElement } };
-    })
-  ) as RouteItem[];
-
+  const routes = createRoutesFromElements(routeElements) as RouteItem[];
   if (compare) {
     routes.sort(compare);
   }
 
-  const routeElements = useRoutes(routes, location);
+  const location = useLocation();
+  const routeList = useRoutes(routes, location);
 
-  const routesRef = useRef([] as RouteItem[]);
-  routesRef.current = routes;
+  // direction
+  const nextPath = useNextPath(location.pathname);
+  const prevPath = useRef<string | null>(null);
+  const direction = useRef<Direction>('undirected');
 
-  const nextMatch = useMemo(() => {
-    const next = getMatch(routesRef.current, nextPath);
+  const nextMatch = getMatch(routes, nextPath);
 
-    if (prevPath.current && prevPath.current !== nextPath) {
-      const prev = getMatch(routesRef.current, prevPath.current);
-      const diff = next.index - prev.index;
+  if (prevPath.current && prevPath.current !== nextPath) {
+    const prevMatch = getMatch(routes, prevPath.current);
+    const indexDiff = nextMatch.index - prevMatch.index;
 
-      if (diff > 0) {
-        direction.current = 'forward';
-      } else if (diff < 0) {
-        direction.current = 'back';
-      } else if (diff === 0) {
-        direction.current = 'undirected';
-      }
+    if (indexDiff > 0) {
+      direction.current = 'forward';
+    } else if (indexDiff < 0) {
+      direction.current = 'back';
+    } else if (indexDiff === 0) {
+      direction.current = 'undirected';
     }
+  }
 
-    prevPath.current = nextPath;
-    return next;
-  }, [nextPath]);
+  prevPath.current = nextPath;
 
+  // props
   const childFactory = useCallback(
     (child: ReactElement<CSSTransitionProps>) =>
       cloneElement(child, { classNames: direction.current }),
@@ -220,7 +215,7 @@ const SlideRoutes = (props: SlideRoutesProps) => {
         nodeRef={nextMatch.route.element.ref}
         {...cssTransitionProps}
       >
-        {routeElements}
+        {routeList}
       </CSSTransition>
     </TransitionGroup>
   );
