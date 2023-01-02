@@ -62,6 +62,7 @@ const App = () => (
 
 ## FUTAKE
 
-If you use WeChat, please try "**FUTAKE**". It's a WeChat mini app for your inspiration moments. 🌈
+Try [**FUTAKE**](https://sotake.com/futake) in WeChat. A mini app for your inspiration moments. 🌈
 
 ![FUTAKE](https://s3.bmp.ovh/imgs/2022/07/21/452dd47aeb790abd.png)
+
