@@ -11,7 +11,7 @@ The easiest way to slide React routes
 
 ---
 
-![live](live.gif)
+<img src="live.gif" alt="live" height="320" />
 
 ## Fit
 
@@ -22,10 +22,10 @@ React Router v6
 ## Add
 
 ```shell script
-yarn add react-slide-routes
-
+pnpm add react-slide-routes
 # or
-
+yarn add react-slide-routes
+# or
 npm i react-slide-routes
 ```
 
