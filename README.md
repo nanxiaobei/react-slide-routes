@@ -9,6 +9,10 @@ The easiest way to slide React routes
 [![npm peer dependency version](https://img.shields.io/npm/dependency-version/react-slide-routes/peer/react-router-dom?style=flat-square)](https://github.com/remix-run/react-router/tree/main/packages/react-router-dom)
 [![GitHub](https://img.shields.io/github/license/nanxiaobei/react-slide-routes?style=flat-square)](https://github.com/nanxiaobei/react-slide-routes/blob/main/LICENSE)
 
+---
+
+![live](live.gif)
+
 ## Fit
 
 React Router v6
@@ -40,11 +44,7 @@ const App = () => (
 );
 ```
 
-## Live
-
-[Play a live demo here → 🤳](https://codesandbox.io/s/react-slide-routes-bnzlu)
-
-![live](live.gif)
+[![Edit react-slide-routes](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/react-slide-routes-bnzlu?fontsize=14&hidenavigation=1&theme=dark)
 
 ## API
 
@@ -65,4 +65,3 @@ const App = () => (
 Try [**FUTAKE**](https://sotake.com/futake) in WeChat. A mini app for your inspiration moments. 🌈
 
 ![FUTAKE](https://s3.bmp.ovh/imgs/2022/07/21/452dd47aeb790abd.png)
-
