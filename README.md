@@ -1,3 +1,12 @@
+<div align="center">
+<p><a href="https://kee.so/" target="_blank"><img src="https://i.imgur.com/x5SRUoo.png" alt="kee.so" /></a></p>
+
+Create now ➫ [🔗 kee.so](https://kee.so/)
+
+</div>
+
+---
+
 # react-slide-routes 🏄‍♂️
 
 The easiest way to slide React routes
@@ -59,9 +68,3 @@ const App = () => (
 ## License
 
 [MIT License](https://github.com/nanxiaobei/react-slide-routes/blob/main/LICENSE) © [nanxiaobei](https://lee.so/)
-
-## FUTAKE
-
-Try [**FUTAKE**](https://sotake.com/futake) in WeChat. A mini app for your inspiration moments. 🌈
-
-![FUTAKE](https://s3.bmp.ovh/imgs/2022/07/21/452dd47aeb790abd.png)
