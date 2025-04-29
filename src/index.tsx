@@ -18,8 +18,8 @@ import {
   UNSAFE_RouteContext,
   useLocation,
   useRoutes,
-} from 'react-router-dom';
-import type { NavigateProps, RouteObject, RouteProps } from 'react-router-dom';
+} from 'react-router';
+import type { NavigateProps, RouteObject, RouteProps } from 'react-router';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import type { CSSTransitionProps } from 'react-transition-group/CSSTransition';
 import { css } from '@emotion/react';
