@@ -3,6 +3,7 @@ import {
   cloneElement,
   createRef,
   isValidElement,
+  Ref,
   useCallback,
   useContext,
   useMemo,
@@ -63,7 +64,7 @@ const getTransformStyles = (transformFn: string, max: string) => `
 const getTransitionGroupCss = (
   duration: number,
   timing: string,
-  direction: Direction
+  direction: Direction,
 ) => css`
   display: grid;
 
@@ -196,13 +197,15 @@ const SlideRoutes = (props: SlideRoutesProps) => {
   const childFactory = useCallback(
     (child: ReactElement<CSSTransitionProps>) =>
       cloneElement(child, { classNames: direction.current }),
-    []
+    [],
   );
 
   const cssTransitionProps = useMemo(
     () => (destroy ? { timeout: duration } : { addEndListener() {} }),
-    [destroy, duration]
+    [destroy, duration],
   );
+
+  const nextEl = nextMatch.route.element;
 
   return (
     <TransitionGroup
@@ -211,8 +214,12 @@ const SlideRoutes = (props: SlideRoutesProps) => {
       css={getTransitionGroupCss(duration, timing, direction.current)}
     >
       <CSSTransition
-        key={nextMatch.route.path ?? nextMatch.index}
-        nodeRef={nextMatch.route.element.ref}
+        key={nextMatch.route.path || nextMatch.index}
+        nodeRef={
+          ((nextEl.props as Record<string, unknown>).ref as Ref<
+            HTMLElement | undefined
+          >) || nextEl.ref
+        }
         {...cssTransitionProps}
       >
         {routeList}
